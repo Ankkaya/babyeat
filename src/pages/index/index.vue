@@ -51,7 +51,7 @@
         <view class="content">
           <template v-if="itemList.length > 0">
             <template v-for="(item, index) in itemList">
-              <view class="card">
+              <view class="card" @click="handleClickNav">
                 <!-- 添加长按事件 -->
                 <image
                   class="img"
@@ -280,6 +280,13 @@ const handleOverlayClick = () => {
   // 重置所有分类的 active 属性
   tagList.value.forEach((item) => {
     item.active = false
+  })
+}
+
+// 点击跳转到详情页
+const handleClickNav = () => {
+  wx.navigateTo({
+    url: '/pages/goods/details/index',
   })
 }
 

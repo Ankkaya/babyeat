@@ -1,0 +1,122 @@
+page {
+  background-color: $color-background;
+}
+
+.details {
+  .nut-swiper-item {
+    height: 700px;
+  }
+  .img {
+    width: 100%;
+  }
+  .page {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 46px;
+    height: 22px;
+    background: rgba(0, 0, 0, 0.33);
+    border-radius: 22px;
+    text-align: center;
+    color: #fff;
+    font-size: 14px;
+  }
+
+  .content-one {
+    background-color: #fff;
+    padding: 40px;
+    .price {
+      display: flex;
+      margin-top: 20px;
+      font-weight: 500;
+      .price-text {
+        margin-right: 20px;
+        font-weight: 600;
+        color: #999;
+      }
+    }
+    .title {
+      color: #666;
+      font-weight: 600;
+      margin-top: 20px;
+    }
+  }
+
+  .content-two {
+    padding: 40px;
+    margin-top: 20px;
+    border-radius: 20px;
+    background-color: #fff;
+    .details {
+      .title {
+        font-size: 28px;
+        font-weight: 600;
+      }
+      .title::before {
+        content: '';
+        margin-right: 10px;
+        height: auto;
+        border-left: 8px solid;
+        /*设置线性渐变*/
+        border-image: linear-gradient(0deg, rgba(0, 216, 247, 0) 0%, #fa2c19 100%) 2 2 2 2;
+      }
+      .param-title {
+        display: flex;
+        align-items: center;
+        margin-top: 40px;
+        margin-left: -10px;
+        &-tips {
+          font-size: 26px;
+        }
+        .text {
+          margin-left: 10px;
+          font-size: 26px;
+          font-weight: 600;
+          padding-bottom: 6px;
+        }
+      }
+      .params {
+        margin-top: 20px;
+        font-size: 26px;
+        color: #909ca4;
+        &-item {
+          display: flex;
+          align-items: center;
+          border-right: 1px solid #eee;
+          border-top: 1px solid #eee;
+          position: relative;
+          &-title {
+            width: 200px;
+            padding: 10px;
+          }
+          &-title::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #eee;
+          }
+          &-con {
+            flex: 1;
+            padding: 10px;
+            word-break: break-all;
+          }
+          &-con::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 220px;
+            bottom: 0;
+            width: 2px;
+            background-color: #eee;
+          }
+        }
+        &-item:last-child {
+          border-bottom: 1px solid #eee;
+        }
+      }
+    }
+  }
+}
