@@ -10,6 +10,7 @@ declare module '@vue/runtime-core' {
     NutBacktop: typeof import('@nutui/nutui-taro')['Backtop']
     NutButton: typeof import('@nutui/nutui-taro')['Button']
     NutEmpty: typeof import('@nutui/nutui-taro')['Empty']
+    NutImagePreview: typeof import('@nutui/nutui-taro')['ImagePreview']
     NutOverlay: typeof import('@nutui/nutui-taro')['Overlay']
     NutPrice: typeof import('@nutui/nutui-taro')['Price']
     NutSearchbar: typeof import('@nutui/nutui-taro')['Searchbar']

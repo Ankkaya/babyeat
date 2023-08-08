@@ -1,6 +1,7 @@
 {
   "projectname": "babyeat",
   "setting": {
-    "compileHotReLoad": true
+    "compileHotReLoad": true,
+    "urlCheck": false
   }
 }

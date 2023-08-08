@@ -1,8 +1,9 @@
 <template>
+  <nut-image-preview :show="showPreview" :images="imgData" @close="hideFn" />
   <view class="details">
     <nut-swiper>
       <template v-for="item in items">
-        <nut-swiper-item>
+        <nut-swiper-item @click="clickSwiperFn">
           <image class="img" :src="item.imgUrl" mode="widthFix" />
         </nut-swiper-item>
       </template>
@@ -13,7 +14,7 @@
     <view class="content-one">
       <view class="price">
         <view class="price-text">参考金额</view>
-        <nut-price :price="info.price" :decimal-digits="2" thousands symbol="￥" />
+        <nut-price class="price-num" :price="info.price" :decimal-digits="2" thousands symbol="￥" />
       </view>
       <view class="title">
         {{ info.title }}
@@ -22,26 +23,50 @@
     <view class="content-two">
       <view class="details">
         <view class="title"> 详情 </view>
-        <view class="param-title">
-          <Tips class="param-title-tips" />
-          <view class="text"> 规格参数 </view>
+        <view>
+          <view class="param-title">
+            <Tips class="param-title-tips" />
+            <view class="text"> 规格参数 </view>
+          </view>
+          <view class="params">
+            <template v-for="item in paramsList">
+              <view class="params-item">
+                <view class="params-item-title">{{ item.value }}</view>
+                <view class="params-item-con">{{ item.key }}</view>
+              </view>
+            </template>
+          </view>
         </view>
-        <view class="params">
-          <template v-for="item in paramsList">
-            <view class="params-item">
-              <view class="params-item-title">{{ item.value }}</view>
-              <view class="params-item-con">{{ item.key }}</view>
-            </view>
-          </template>
+        <!-- 位置信息 -->
+        <view>
+          <view class="param-title">
+            <Shop class="param-title-tips" />
+            <view class="text"> 位置信息 </view>
+          </view>
+          <view class="addr"> 河南省洛阳市涧西区武汉路与西三环交叉口向西200米路南 大张超市 </view>
         </view>
       </view>
+    </view>
+    <view class="bottom-control">
+      <template v-for="(item, index) in bottomControlBtns">
+        <view class="c-item" @click="bcbClickFn(item)">
+          <template v-if="item.value">
+            <IconFont :name="item.iconActive" :class="['c-item-icon', 'c-item-icon-scale']" />
+          </template>
+          <template v-else>
+            <IconFont :name="item.icon" :class="['c-item-icon']" />
+          </template>
+          <view :class="['c-item-label', item.value ? 'c-item-text-scale' : '']">{{ item.label }}</view>
+        </view>
+      </template>
     </view>
   </view>
 </template>
 
 <script setup>
 import './index.scss'
-import { Tips } from '@nutui/icons-vue-taro'
+import { IconFont } from '@nutui/icons-vue-taro'
+import { Tips, Shop } from '@nutui/icons-vue-taro'
 import { ref } from 'vue'
 const items = ref([
   {
@@ -58,6 +83,8 @@ const items = ref([
 const info = {
   price: 29.9,
   title: '秋田满满 婴儿零食手指泡芙条原味宝宝零食泡芙婴儿小饼干罐装36g',
+  star: false,
+  follow: false,
 }
 const paramsList = ref([
   {
@@ -81,4 +108,49 @@ const paramsList = ref([
     value: '口味',
   },
 ])
+
+const imgData = ref([])
+const showPreview = ref(false)
+
+// 轮播图点击事件
+const clickSwiperFn = () => {
+  imgData.value = items.value.map((item) => ({ src: item.imgUrl }))
+  showPreview.value = true
+}
+// 隐藏预览图
+const hideFn = () => {
+  showPreview.value = false
+}
+
+/**
+ * 底部控制按钮
+ * @description 商品地图导航，收藏，点赞
+ * @type {Ref<BottomControlBtns>} bottomControlBtns - 底部控制按钮
+ * @type {Function} bcbClickFn - 底部控制按钮点击事件
+ */
+
+const bottomControlBtns = ref([
+  {
+    icon: 'find',
+    iconActive: 'find',
+    label: '我要买',
+    value: false,
+  },
+  {
+    icon: 'heart1',
+    iconActive: 'heart-fill',
+    label: '点个赞吧',
+    value: true,
+  },
+  {
+    icon: 'star-n',
+    iconActive: 'star-fill-n',
+    label: '收藏啦',
+    value: true,
+  },
+])
+const bcbClickFn = (item) => {
+  item.value = !item.value
+  console.log(bottomControlBtns.value)
+}
 </script>

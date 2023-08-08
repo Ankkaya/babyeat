@@ -71,7 +71,7 @@
                   </view>
                   <view class="price">
                     <view class="price-text">参考金额</view>
-                    <nut-price :price="item.price" :decimal-digits="2" thousands symbol="¥" />
+                    <nut-price class="price-num" :price="item.price" :decimal-digits="2" thousands symbol="¥" />
                   </view>
                 </view>
               </view>
