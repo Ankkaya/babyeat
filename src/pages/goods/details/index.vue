@@ -43,13 +43,13 @@
             <Shop class="param-title-tips" />
             <view class="text"> 位置信息 </view>
           </view>
-          <view class="addr"> 河南省洛阳市涧西区武汉路与西三环交叉口向西200米路南 大张超市 </view>
+          <view class="addr" @click="clickNavFn"> 河南省洛阳市涧西区武汉路与西三环交叉口向西200米路南 大张超市 </view>
         </view>
       </view>
     </view>
     <view class="bottom-control">
       <template v-for="(item, index) in bottomControlBtns">
-        <view class="c-item" @click="bcbClickFn(item)">
+        <view class="c-item" @click="bcbClickFn(index, item)">
           <template v-if="item.value">
             <IconFont :name="item.iconActive" :class="['c-item-icon', 'c-item-icon-scale']" />
           </template>
@@ -68,6 +68,7 @@ import './index.scss'
 import { IconFont } from '@nutui/icons-vue-taro'
 import { Tips, Shop } from '@nutui/icons-vue-taro'
 import { ref } from 'vue'
+import Taro from '@tarojs/taro'
 const items = ref([
   {
     imgUrl: 'https://img10.360buyimg.com/n1/jfs/t1/139559/36/33075/130633/63da3034F8d7e51ac/f6303e46856c451a.jpg',
@@ -137,7 +138,7 @@ const bottomControlBtns = ref([
     value: false,
   },
   {
-    icon: 'heart1',
+    icon: 'addfollow',
     iconActive: 'heart-fill',
     label: '点个赞吧',
     value: true,
@@ -149,8 +150,20 @@ const bottomControlBtns = ref([
     value: true,
   },
 ])
-const bcbClickFn = (item) => {
+const bcbClickFn = (index, item) => {
   item.value = !item.value
-  console.log(bottomControlBtns.value)
+  if (index === 0) {
+    clickNavFn()
+  }
+}
+
+// 地图导航
+const clickNavFn = () => {
+  Taro.openLocation({
+    latitude: 34.75661,
+    longitude: 113.649643,
+    name: '牡丹图文',
+    address: 'wuhanlu',
+  })
 }
 </script>

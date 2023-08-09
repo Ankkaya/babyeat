@@ -1,0 +1,127 @@
+<template>
+  <nut-form>
+    <nut-form-item label="商品名称">
+      <nut-input v-model="formData2.title" placeholder="请输入商品名称" :border="false" />
+    </nut-form-item>
+    <nut-form-item label="开关">
+      <nut-switch v-model="formData2.switch"></nut-switch>
+    </nut-form-item>
+    <nut-form-item label="复选框">
+      <nut-checkbox v-model="formData2.checkbox">复选框</nut-checkbox>
+    </nut-form-item>
+    <nut-form-item label="单选按钮">
+      <nut-radio-group direction="horizontal" v-model="formData2.radio">
+        <nut-radio label="1">选项1</nut-radio>
+        <nut-radio disabled label="2">选项2</nut-radio>
+        <nut-radio label="3">选项3</nut-radio>
+      </nut-radio-group>
+    </nut-form-item>
+    <nut-form-item label="评分">
+      <nut-rate v-model="formData2.rate" />
+    </nut-form-item>
+    <nut-form-item label="步进器">
+      <nut-input-number v-model="formData2.number" />
+    </nut-form-item>
+    <nut-form-item label="滑块">
+      <nut-range hidden-tag v-model="formData2.range"></nut-range>
+    </nut-form-item>
+    <nut-form-item label="文件上传">
+      <nut-uploader
+        url="http://服务地址"
+        accept="image/*"
+        v-model:file-list="formData2.defaultFileList"
+        maximum="3"
+        multiple
+      >
+      </nut-uploader>
+    </nut-form-item>
+    <nut-form-item label="地址">
+      <nut-input
+        class="nut-input-text"
+        v-model="formData2.address"
+        @click="show"
+        readonly
+        placeholder="请选择地址"
+        type="text"
+      />
+      <!-- nut-address -->
+      <nut-address
+        v-model:visible="addressModule.state.show"
+        :province="addressModule.state.province"
+        :city="addressModule.state.city"
+        :country="addressModule.state.country"
+        :town="addressModule.state.town"
+        @change="onChange"
+        custom-address-title="请选择所在地区"
+      ></nut-address>
+    </nut-form-item>
+  </nut-form>
+</template>
+<script lang="ts" setup>
+import { ref } from 'vue'
+const formData2 = ref({
+  title: '',
+  switch: false,
+  checkbox: false,
+  radio: 0,
+  number: 0,
+  rate: 3,
+  range: 30,
+  address: '',
+  defaultFileList: [
+    {
+      name: '文件1.png',
+      url: 'https://m.360buyimg.com/babel/jfs/t1/164410/22/25162/93384/616eac6cE6c711350/0cac53c1b82e1b05.gif',
+      status: 'success',
+      message: '上传成功',
+      type: 'image',
+    },
+    {
+      name: '文件2.png',
+      url: 'https://m.360buyimg.com/babel/jfs/t1/164410/22/25162/93384/616eac6cE6c711350/0cac53c1b82e1b05.gif',
+      status: 'uploading',
+      message: '上传中...',
+      type: 'image',
+    },
+  ],
+})
+
+const addressModule = ref({
+  state: {
+    show: false,
+    province: [
+      { id: 1, name: '北京' },
+      { id: 2, name: '广西' },
+      { id: 3, name: '江西' },
+      { id: 4, name: '四川' },
+    ],
+    city: [
+      { id: 7, name: '朝阳区' },
+      { id: 8, name: '崇文区' },
+      { id: 9, name: '昌平区' },
+      { id: 6, name: '石景山区' },
+    ],
+    country: [
+      { id: 3, name: '八里庄街道' },
+      { id: 9, name: '北苑' },
+      { id: 4, name: '常营乡' },
+    ],
+    town: [],
+  },
+})
+
+const onChange = ({ custom, next, value }: any) => {
+  formData2.value.address += value.name
+  const name = addressModule.value.state[next]
+  if (name.length < 1) {
+    addressModule.value.state.show = false
+  }
+}
+
+const show = () => {
+  addressModule.value.state.show = !addressModule.value.state.show
+  if (addressModule.value.state.show) {
+    formData2.value.address = ''
+  }
+}
+</script>

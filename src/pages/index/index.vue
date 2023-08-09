@@ -5,90 +5,85 @@
     z-index="500"
     @click="handleOverlayClick"
   ></nut-overlay>
-  <nut-backtop :z-index="500">
-    <template #content>
-      <view class="index">
-        <view class="search">
-          <nut-searchbar v-model="searchValue" @change="handleSearchChange">
-            <template v-slot:leftin>
-              <Search2 />
-            </template>
-          </nut-searchbar>
-        </view>
-        <!-- 标签分类 -->
-        <view class="filter">
-          <view class="tag-list">
-            <template v-for="(item, index) in tagList">
-              <view class="tag-item" @click="handleTagClick(item, index)">
-                <view :class="['tag-item-text', item.chooseLabel ? 'choosed' : '']">{{
-                  item.chooseLabel ?? item.label
-                }}</view>
-                <DownArrow
-                  :class="[
-                    'tag-item-icon',
-                    item.active ? 'tag-item-icon-rotate' : '',
-                    item.chooseLabel ? 'choosed' : '',
-                  ]"
-                />
-              </view>
-            </template>
+  <view class="index">
+    <view class="search">
+      <nut-searchbar v-model="searchValue" @change="handleSearchChange">
+        <template v-slot:leftin>
+          <Search2 />
+        </template>
+      </nut-searchbar>
+    </view>
+    <!-- 标签分类 -->
+    <view class="filter">
+      <view class="tag-list">
+        <template v-for="(item, index) in tagList">
+          <view class="tag-item" @click="handleTagClick(item, index)">
+            <view :class="['tag-item-text', item.chooseLabel ? 'choosed' : '']">{{
+              item.chooseLabel ?? item.label
+            }}</view>
+            <DownArrow
+              :class="['tag-item-icon', item.active ? 'tag-item-icon-rotate' : '', item.chooseLabel ? 'choosed' : '']"
+            />
           </view>
-          <view class="tag-list-detail" v-if="showOverlay">
-            <view class="details">
-              <template v-for="(item, index) in tagList[currentTagIndex].value">
-                <view class="item" @click="handleClickChooseTag(item, index)">
-                  <JoySmile class="joy-smile" v-if="item.active" />
-                  <view class="tag-list-detail-item">{{ item.label }}</view>
-                </view>
-              </template>
+        </template>
+      </view>
+      <view class="tag-list-detail" v-if="showOverlay">
+        <view class="details">
+          <template v-for="(item, index) in tagList[currentTagIndex].value">
+            <view class="item" @click="handleClickChooseTag(item, index)">
+              <JoySmile class="joy-smile" v-if="item.active" />
+              <view class="tag-list-detail-item">{{ item.label }}</view>
             </view>
-            <view class="details-control">
-              <nut-button class="btn" @click="handleClickReset">重置</nut-button>
-              <nut-button type="danger" class="btn" @click="handleClickConfirm">确定</nut-button>
-            </view>
-          </view>
-        </view>
-        <view class="content">
-          <template v-if="itemList.length > 0">
-            <template v-for="(item, index) in itemList">
-              <view class="card" @click="handleClickNav">
-                <!-- 添加长按事件 -->
-                <image
-                  class="img"
-                  :src="item.imgUrl"
-                  mode="scaleToFill"
-                  :animation="animationShake"
-                  @longpress="handleLongPress(index)"
-                />
-                <view class="details">
-                  <view class="title">
-                    {{ item.title }}
-                  </view>
-                  <view class="tags">
-                    <template v-for="sitem in item.tags">
-                      <view class="tag">{{ sitem }}</view>
-                    </template>
-                  </view>
-                  <view class="price">
-                    <view class="price-text">参考金额</view>
-                    <nut-price class="price-num" :price="item.price" :decimal-digits="2" thousands symbol="¥" />
-                  </view>
-                </view>
-              </view>
-            </template>
           </template>
-          <template> <nut-empty description="暂无数据"></nut-empty></template>
+        </view>
+        <view class="details-control">
+          <nut-button class="btn" @click="handleClickReset">重置</nut-button>
+          <nut-button type="danger" class="btn" @click="handleClickConfirm">确定</nut-button>
         </view>
       </view>
-    </template>
-  </nut-backtop>
+    </view>
+    <view class="content">
+      <template v-if="itemList.length > 0">
+        <template v-for="(item, index) in itemList">
+          <view class="card" @click="handleClickNav">
+            <!-- 添加长按事件 -->
+            <image
+              class="img"
+              :src="item.imgUrl"
+              mode="scaleToFill"
+              :animation="animationShake"
+              @longpress="handleLongPress(index)"
+            />
+            <view class="details">
+              <view class="title">
+                {{ item.title }}
+              </view>
+              <view class="tags">
+                <template v-for="sitem in item.tags">
+                  <view class="tag">{{ sitem }}</view>
+                </template>
+              </view>
+              <view class="price">
+                <view class="price-text">参考金额</view>
+                <nut-price class="price-num" :price="item.price" :decimal-digits="2" thousands symbol="¥" />
+              </view>
+            </view>
+          </view>
+        </template>
+      </template>
+      <template> <nut-empty description="暂无数据"></nut-empty></template>
+    </view>
+  </view>
+  <view class="add" @click="clickAddFn">
+    <Uploader class="uploader" />
+  </view>
 </template>
 
 <script setup>
 import './index.scss'
 import { $ } from '@tarojs/extend'
 import { ref, onMounted, toRefs, watchEffect } from 'vue'
-import { Search2, DownArrow, Check, JoySmile } from '@nutui/icons-vue-taro'
+import { Search2, DownArrow, Check, JoySmile, Uploader } from '@nutui/icons-vue-taro'
 import { debounce } from '@/utils'
 import {
   usePullDownRefresh,
@@ -97,6 +92,7 @@ import {
   componentDidMount,
   nextTick,
   createSelectorQuery,
+  navigateTo,
 } from '@tarojs/taro'
 const itemList = ref([])
 usePullDownRefresh(() => {
@@ -287,6 +283,16 @@ const handleOverlayClick = () => {
 const handleClickNav = () => {
   wx.navigateTo({
     url: '/pages/goods/details/index',
+  })
+}
+
+/**
+ * 添加零食
+ * @description 点击添加零食按钮，跳转到添加零食页面
+ */
+const clickAddFn = () => {
+  navigateTo({
+    url: '/pages/goods/add/index',
   })
 }
 

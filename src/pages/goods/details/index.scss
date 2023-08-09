@@ -149,7 +149,7 @@ page {
       // 膨胀，缩小动画
       .c-item-icon-scale {
         // animation: scale 0.3s ease-in-out;
-        color: $color-primary;
+        color: var(--nut-primary-color);
       }
       .c-item-text-scale {
         // animation: scale 0.3s ease-in-out;
@@ -161,7 +161,7 @@ page {
     }
     .c-item:first-child {
       .c-item-icon {
-        color: $color-primary;
+        color: var(--nut-primary-color);
       }
     }
     view:active {
