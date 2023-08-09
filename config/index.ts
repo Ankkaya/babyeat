@@ -8,6 +8,7 @@ const config = {
   alias: {
     '@/components': path.resolve(__dirname, '..', 'src/components'),
     '@/utils': path.resolve(__dirname, '..', 'src/utils'),
+    '@/store': path.resolve(__dirname, '..', 'src/store'),
   },
   designWidth(input) {
     if (input?.file?.replace(/\\+/g, '/').indexOf('@nutui') > -1) {

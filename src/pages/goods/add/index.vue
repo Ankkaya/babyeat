@@ -1,66 +1,93 @@
 <template>
-  <nut-form>
-    <nut-form-item label="商品名称">
-      <nut-input v-model="formData2.title" placeholder="请输入商品名称" :border="false" />
-    </nut-form-item>
-    <nut-form-item label="开关">
-      <nut-switch v-model="formData2.switch"></nut-switch>
-    </nut-form-item>
-    <nut-form-item label="复选框">
-      <nut-checkbox v-model="formData2.checkbox">复选框</nut-checkbox>
-    </nut-form-item>
-    <nut-form-item label="单选按钮">
-      <nut-radio-group direction="horizontal" v-model="formData2.radio">
-        <nut-radio label="1">选项1</nut-radio>
-        <nut-radio disabled label="2">选项2</nut-radio>
-        <nut-radio label="3">选项3</nut-radio>
-      </nut-radio-group>
-    </nut-form-item>
-    <nut-form-item label="评分">
-      <nut-rate v-model="formData2.rate" />
-    </nut-form-item>
-    <nut-form-item label="步进器">
-      <nut-input-number v-model="formData2.number" />
-    </nut-form-item>
-    <nut-form-item label="滑块">
-      <nut-range hidden-tag v-model="formData2.range"></nut-range>
-    </nut-form-item>
-    <nut-form-item label="文件上传">
-      <nut-uploader
-        url="http://服务地址"
-        accept="image/*"
-        v-model:file-list="formData2.defaultFileList"
-        maximum="3"
-        multiple
-      >
-      </nut-uploader>
-    </nut-form-item>
-    <nut-form-item label="地址">
-      <nut-input
-        class="nut-input-text"
-        v-model="formData2.address"
-        @click="show"
-        readonly
-        placeholder="请选择地址"
-        type="text"
-      />
-      <!-- nut-address -->
-      <nut-address
-        v-model:visible="addressModule.state.show"
-        :province="addressModule.state.province"
-        :city="addressModule.state.city"
-        :country="addressModule.state.country"
-        :town="addressModule.state.town"
-        @change="onChange"
-        custom-address-title="请选择所在地区"
-      ></nut-address>
-    </nut-form-item>
-  </nut-form>
+  <view class="add">
+    <nut-form>
+      <nut-form-item label="商品名称">
+        <nut-textarea
+          class="title-textarea"
+          v-model="formData2.title"
+          placeholder="请输入商品名称"
+          :rows="1"
+          autosize
+        />
+      </nut-form-item>
+      <nut-form-item label="参考价">
+        <nut-input placeholder="请输入参考价" v-model="formData2.price" type="number" :border="false" />
+      </nut-form-item>
+      <nut-form-item label="类别">
+        <nut-input @click="clickShowFn('category')" readonly placeholder="请选择类别" type="text" :border="false" />
+      </nut-form-item>
+      <nut-form-item label="产地">
+        <nut-input @click="clickShowFn('location')" readonly placeholder="请选择产地" type="text" :border="false" />
+      </nut-form-item>
+      <nut-form-item label="是否含糖">
+        <nut-radio-group direction="horizontal" v-model="formData2.sugar">
+          <template v-for="item in sugarList">
+            <nut-radio :label="item.value">{{ item.value }}</nut-radio>
+          </template>
+        </nut-radio-group>
+      </nut-form-item>
+      <nut-form-item label="是否含盐">
+        <nut-radio-group direction="horizontal" v-model="formData2.salt">
+          <template v-for="item in saltList">
+            <nut-radio :label="item.value">{{ item.value }}</nut-radio>
+          </template>
+        </nut-radio-group>
+      </nut-form-item>
+      <nut-form-item label="包装">
+        <nut-input @click="clickShowFn('wrapper')" readonly placeholder="请选择包装" type="text" :border="false" />
+      </nut-form-item>
+      <nut-form-item label="适用年龄">
+        <nut-input @click="clickShowFn('wrapper')" readonly placeholder="请选择适用年龄" type="text" :border="false" />
+      </nut-form-item>
+      <nut-form-item label="商品图片">
+        <nut-uploader
+          url="http://服务地址"
+          accept="image/*"
+          v-model:file-list="formData2.defaultFileList"
+          maximum="3"
+          multiple
+        >
+        </nut-uploader>
+      </nut-form-item>
+      <nut-form-item label="地址">
+        <nut-input
+          class="nut-input-text"
+          v-model="formData2.address"
+          @click="show"
+          readonly
+          placeholder="请选择地址"
+          type="text"
+        />
+        <!-- nut-address -->
+        <nut-address
+          v-model:visible="addressModule.state.show"
+          :province="addressModule.state.province"
+          :city="addressModule.state.city"
+          :country="addressModule.state.country"
+          :town="addressModule.state.town"
+          @change="onChange"
+          custom-address-title="请选择所在地区"
+        ></nut-address>
+      </nut-form-item>
+    </nut-form>
+    <nut-action-sheet
+      v-model:visible="actionSheetVisible"
+      :menu-items="menuItems"
+      @choose="chooseItemFn"
+    ></nut-action-sheet>
+  </view>
 </template>
 <script lang="ts" setup>
 import { ref } from 'vue'
 const formData2 = ref({
   title: '',
+  price: null,
+  category: '',
+  location: '',
+  wrapper: '',
+  sugar: '',
+  salt: '',
+  age: '',
   switch: false,
   checkbox: false,
   radio: 0,
@@ -109,6 +136,36 @@ const addressModule = ref({
     town: [],
   },
 })
+
+// 表单相关列表数据
+const saltList = ref([])
+const wrapperList = ref([])
+const sugarList = ref([])
+const categoryList = ref([])
+const locationList = ref([])
+const ageList = ref([])
+
+/**
+ * 输入框点击事件
+ * @description: 点击输入框时，显示对应选择器
+ */
+const clickShowFn = (type: string) => {
+  switch (type) {
+    case 'category':
+      formData2.value.category = '1'
+      break
+    default:
+      break
+  }
+}
+
+/**
+ * 动作面板
+ * @description: 点击输入框时，显示对应选择器
+ */
+const actionSheetVisible = ref(false)
+const menuItems = ref([])
+const chooseItemFn = (item) => {}
 
 const onChange = ({ custom, next, value }: any) => {
   formData2.value.address += value.name

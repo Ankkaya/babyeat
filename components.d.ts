@@ -7,6 +7,7 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    NutActionSheet: typeof import('@nutui/nutui-taro')['ActionSheet']
     NutAddress: typeof import('@nutui/nutui-taro')['Address']
     NutButton: typeof import('@nutui/nutui-taro')['Button']
     NutCheckbox: typeof import('@nutui/nutui-taro')['Checkbox']
@@ -26,6 +27,7 @@ declare module '@vue/runtime-core' {
     NutSwiper: typeof import('@nutui/nutui-taro')['Swiper']
     NutSwiperItem: typeof import('@nutui/nutui-taro')['SwiperItem']
     NutSwitch: typeof import('@nutui/nutui-taro')['Switch']
+    NutTextarea: typeof import('@nutui/nutui-taro')['Textarea']
     NutUploader: typeof import('@nutui/nutui-taro')['Uploader']
   }
 }

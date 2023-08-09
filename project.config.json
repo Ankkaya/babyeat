@@ -2,34 +2,54 @@
   "miniprogramRoot": "dist/",
   "description": "baby eat snacks",
   "setting": {
-    "urlCheck": true,
+    "urlCheck": false,
     "es6": false,
     "enhance": false,
-    "compileHotReLoad": false,
     "postcss": false,
+    "preloadBackgroundData": false,
     "minified": false,
+    "newFeature": false,
+    "coverView": false,
+    "nodeModules": false,
+    "autoAudits": false,
+    "showShadowRootInWxmlPanel": false,
+    "scopeDataCheck": false,
+    "uglifyFileName": false,
+    "checkInvalidKey": true,
+    "checkSiteMap": true,
+    "uploadWithSourceMap": true,
+    "compileHotReLoad": false,
+    "useMultiFrameRuntime": true,
+    "useApiHook": true,
+    "useApiHostProcess": true,
     "babelSetting": {
       "ignore": [],
       "disablePlugins": [],
       "outputPath": ""
     },
-    "coverView": false,
-    "showShadowRootInWxmlPanel": false,
+    "enableEngineNative": false,
+    "bundle": true,
+    "useIsolateContext": true,
+    "useCompilerModule": true,
+    "userConfirmedUseCompilerModuleSwitch": false,
+    "userConfirmedBundleSwitch": true,
+    "packNpmManually": false,
     "packNpmRelationList": [],
-    "ignoreUploadUnusedFiles": true
+    "minifyWXSS": false
   },
   "compileType": "miniprogram",
   "srcMiniprogramRoot": "dist/",
-  "condition": {},
   "editorSetting": {
     "tabIndent": "insertSpaces",
     "tabSize": 2
   },
   "appid": "wx64387dc8bba916ec",
   "cloudfunctionRoot": "cloudfunctions/",
-  "libVersion": "3.0.0",
+  "libVersion": "2.29.2",
   "packOptions": {
     "ignore": [],
     "include": []
-  }
+  },
+  "projectname": "babyeat",
+  "condition": {}
 }

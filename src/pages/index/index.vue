@@ -94,7 +94,9 @@ import {
   createSelectorQuery,
   navigateTo,
 } from '@tarojs/taro'
-const itemList = ref([])
+import { useGoodsStore } from '@/store'
+
+const { choosedTags, setChoosedTags } = useGoodsStore()
 usePullDownRefresh(() => {
   stopPullDownRefresh({
     complete: () => {
@@ -109,7 +111,11 @@ useReachBottom(() => {
 
 /**
  * 获取商品列表
+ * @description 获取商品列表
+ * @param {Array} itemList 商品列表
+ * @param {Function} useGetItemList 获取商品列表
  */
+const itemList = ref([])
 const useGetItemList = () => {
   wx.cloud.callFunction({
     name: 'quickstartFunctions',
@@ -127,6 +133,7 @@ const useGetItemList = () => {
   })
 }
 
+// 商品名称搜索
 const searchValue = ref('')
 const debounceSearch = debounce(useGetItemList, 1000)
 const handleSearchChange = (value) => {
@@ -203,12 +210,15 @@ const useGetTagList = () => {
             active: false,
           }
         })
+        setChoosedTags(data.value)
       })
+      console.log(choosedTags)
       tagList.value = res.result.data
       nextTick(() => {
         $('.tag-item-text').forEach(async (item) => {
           item.style.maxWidth = (await $(item).width()) + 'px'
         })
+        // 小程序操作 dom 的方式
         // const query = createSelectorQuery()
         // query.selectAll('#tagId').boundingClientRect()
         // query.exec((sres) => {
@@ -224,7 +234,7 @@ const useGetTagList = () => {
   })
 }
 
-// 获取分类下详情
+// 分类点击逻辑
 const handleTagClick = (item, index) => {
   currentTagIndex.value = index
   if (item.active) {
@@ -261,7 +271,6 @@ const handleClickReset = () => {
 watchEffect(() => {
   if (currentTagIndex.value === -1) return
   let activeItems = tagList.value[currentTagIndex.value]?.value.filter((item) => item.active)
-  console.log(activeItems)
   if (activeItems?.length > 0) {
     tagList.value[currentTagIndex.value].chooseLabel = activeItems.map((item) => item.label).join('、')
   } else {
@@ -277,6 +286,7 @@ const handleOverlayClick = () => {
   tagList.value.forEach((item) => {
     item.active = false
   })
+  handleClickReset()
 }
 
 // 点击跳转到详情页

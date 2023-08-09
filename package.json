@@ -53,6 +53,7 @@
 		"@tarojs/runtime": "3.6.11",
 		"@tarojs/shared": "3.6.11",
 		"@tarojs/taro": "3.6.11",
+		"pinia": "^2.1.6",
 		"vue": "^3.2.40"
 	},
 	"devDependencies": {
