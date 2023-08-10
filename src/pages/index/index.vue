@@ -37,7 +37,7 @@
           </template>
         </view>
         <view class="details-control">
-          <nut-button class="btn" @click="handleClickReset">重置</nut-button>
+          <nut-button class="btn" @click="handleClickReset('reset')">重置</nut-button>
           <nut-button type="danger" class="btn" @click="handleClickConfirm">确定</nut-button>
         </view>
       </view>
@@ -212,9 +212,8 @@ const useGetTagList = () => {
             active: false,
           }
         })
-        setChoosedTags(data.value)
+        setChoosedTags(JSON.parse(JSON.stringify(data)))
       })
-      console.log(choosedTags.value)
       tagList.value = res.result.data
       nextTick(() => {
         $('.tag-item-text').forEach(async (item) => {
@@ -242,14 +241,20 @@ const handleTagClick = (item, index) => {
   if (item.active) {
     showOverlay.value = false
     item.active = false
+    choosedTags.value[index].active = false
   } else {
     // 重置所有分类的 active 属性
     tagList.value.forEach((sitem) => {
       sitem.active = false
     })
+    choosedTags.value.forEach((sitem) => {
+      sitem.active = false
+    })
     item.active = true
+    choosedTags.value[index].active = true
     showOverlay.value = true
   }
+  handleClickReset()
 }
 // 详情点击事件
 const handleClickChooseTag = (item) => {
@@ -260,15 +265,19 @@ const handleClickConfirm = () => {
   // 隐藏遮罩
   showOverlay.value = false
   tagList.value[currentTagIndex.value].active = false
-  console.log(JSON.stringify(tagList.value[currentTagIndex.value]))
-  // choosedTags[currentTagIndex] = JSON.parse(JSON.stringify(tagList.value[currentTagIndex.value]))
+  choosedTags.value[currentTagIndex.value] = JSON.parse(JSON.stringify(tagList.value[currentTagIndex.value]))
 }
 // 重置按钮点击事件
-const handleClickReset = () => {
-  // 重置当前分类的 active 属性
-  tagList.value[currentTagIndex.value].value.forEach((item) => {
-    item.active = false
-  })
+const handleClickReset = (mark) => {
+  // 点击事件重置需要重置当前分类下类别详情的 active 属性为 false
+  // 重置当前分类下类别的 chooseLabel 属性为 null
+  if (mark === 'reset') {
+    choosedTags.value[currentTagIndex.value].value.forEach((item) => {
+      item.active = false
+    })
+    choosedTags.value[currentTagIndex.value].chooseLabel = null
+  }
+  tagList.value = JSON.parse(JSON.stringify(choosedTags.value))
 }
 
 // 追踪分类详情的选择
@@ -290,10 +299,7 @@ const handleOverlayClick = () => {
   tagList.value.forEach((item) => {
     item.active = false
   })
-  // handleClickReset()
-
-  console.log(tagList.value)
-  console.log(choosedTags)
+  handleClickReset()
 }
 
 // 点击跳转到详情页
