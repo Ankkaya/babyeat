@@ -95,8 +95,10 @@ import {
   navigateTo,
 } from '@tarojs/taro'
 import { useGoodsStore } from '@/store'
+import { storeToRefs } from 'pinia'
 
-const { choosedTags, setChoosedTags } = useGoodsStore()
+const { choosedTags } = storeToRefs(useGoodsStore())
+const { setChoosedTags } = useGoodsStore()
 usePullDownRefresh(() => {
   stopPullDownRefresh({
     complete: () => {
@@ -212,7 +214,7 @@ const useGetTagList = () => {
         })
         setChoosedTags(data.value)
       })
-      console.log(choosedTags)
+      console.log(choosedTags.value)
       tagList.value = res.result.data
       nextTick(() => {
         $('.tag-item-text').forEach(async (item) => {
@@ -258,6 +260,8 @@ const handleClickConfirm = () => {
   // 隐藏遮罩
   showOverlay.value = false
   tagList.value[currentTagIndex.value].active = false
+  console.log(JSON.stringify(tagList.value[currentTagIndex.value]))
+  // choosedTags[currentTagIndex] = JSON.parse(JSON.stringify(tagList.value[currentTagIndex.value]))
 }
 // 重置按钮点击事件
 const handleClickReset = () => {
@@ -286,7 +290,10 @@ const handleOverlayClick = () => {
   tagList.value.forEach((item) => {
     item.active = false
   })
-  handleClickReset()
+  // handleClickReset()
+
+  console.log(tagList.value)
+  console.log(choosedTags)
 }
 
 // 点击跳转到详情页

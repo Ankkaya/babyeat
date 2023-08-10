@@ -35,7 +35,8 @@
     "userConfirmedBundleSwitch": true,
     "packNpmManually": false,
     "packNpmRelationList": [],
-    "minifyWXSS": false
+    "minifyWXSS": false,
+    "ignoreUploadUnusedFiles": true
   },
   "compileType": "miniprogram",
   "srcMiniprogramRoot": "dist/",
