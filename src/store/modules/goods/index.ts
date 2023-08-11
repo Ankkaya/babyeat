@@ -4,6 +4,7 @@ export const useGoodsStore = defineStore('goods', {
   state() {
     return {
       choosedTags: [],
+      goodsId: '',
     }
   },
   actions: {

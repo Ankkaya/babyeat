@@ -69,6 +69,9 @@ import { IconFont } from '@nutui/icons-vue-taro'
 import { Tips, Shop } from '@nutui/icons-vue-taro'
 import { ref } from 'vue'
 import Taro from '@tarojs/taro'
+import { useGoodsStore } from '@/store'
+import { onMounted } from 'vue'
+
 const items = ref([
   {
     imgUrl: 'https://img10.360buyimg.com/n1/jfs/t1/139559/36/33075/130633/63da3034F8d7e51ac/f6303e46856c451a.jpg',
@@ -109,6 +112,27 @@ const paramsList = ref([
     value: '口味',
   },
 ])
+
+/**
+ * 获取零食详情
+ * @description 获取零食详情
+ * @param {Function} useGetItemDetail 获取零食详情
+ */
+const useGetItemDetail = (id) => {
+  wx.cloud.callFunction({
+    name: 'quickstartFunctions',
+    data: {
+      type: 'selectRecord',
+      id: id,
+    },
+    success: (res) => {
+      console.log(res)
+    },
+    fail: (err) => {
+      console.error('[云函数] [login] 调用失败', err)
+    },
+  })
+}
 
 const imgData = ref([])
 const showPreview = ref(false)
@@ -166,4 +190,8 @@ const clickNavFn = () => {
     address: 'wuhanlu',
   })
 }
+
+onMounted(() => {
+  useGetItemDetail(useGoodsStore().goodsId)
+})
 </script>

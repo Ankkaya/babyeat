@@ -45,7 +45,7 @@
     <view class="content">
       <template v-if="itemList.length > 0">
         <template v-for="(item, index) in itemList">
-          <view class="card" @click="handleClickNav">
+          <view class="card" @click="handleClickNav(item)">
             <!-- 添加长按事件 -->
             <image
               class="img"
@@ -82,7 +82,7 @@
 <script setup>
 import './index.scss'
 import { $ } from '@tarojs/extend'
-import { ref, onMounted, toRefs, watchEffect } from 'vue'
+import { ref, onMounted, watchEffect, computed } from 'vue'
 import { Search2, DownArrow, Check, JoySmile, Uploader } from '@nutui/icons-vue-taro'
 import { debounce } from '@/utils'
 import {
@@ -97,7 +97,7 @@ import {
 import { useGoodsStore } from '@/store'
 import { storeToRefs } from 'pinia'
 
-const { choosedTags } = storeToRefs(useGoodsStore())
+const { choosedTags, goodsId } = storeToRefs(useGoodsStore())
 const { setChoosedTags } = useGoodsStore()
 usePullDownRefresh(() => {
   stopPullDownRefresh({
@@ -118,15 +118,29 @@ useReachBottom(() => {
  * @param {Function} useGetItemList 获取商品列表
  */
 const itemList = ref([])
+
+const tagsParams = computed(() => {
+  let obj = {}
+  choosedTags.value.forEach((item) => {
+    obj[item.key] = item.value.filter((sitem) => sitem.active).map((sitem) => sitem.label)
+  })
+  return obj
+})
+
 const useGetItemList = () => {
   wx.cloud.callFunction({
     name: 'quickstartFunctions',
     data: {
       type: 'selectRecord',
       title: searchValue.value,
+      tags: tagsParams.value,
     },
     success: (res) => {
       console.log('[云函数] [login] user openid: ', res)
+      // 分类属性统一添加到结果的 tags 属性
+      res.result.data.forEach((item) => {
+        item.tags = tagList.value.map((sitem) => item[sitem.key])
+      })
       itemList.value = res.result.data
     },
     fail: (err) => {
@@ -199,6 +213,7 @@ const useGetTagList = () => {
     },
     success: (res) => {
       console.log('[云函数] [login] user openid: ', res)
+      useGetItemList()
       // 分类添加 active 属性
       res.result.data.forEach((item) => {
         item.active = false
@@ -266,6 +281,7 @@ const handleClickConfirm = () => {
   showOverlay.value = false
   tagList.value[currentTagIndex.value].active = false
   choosedTags.value[currentTagIndex.value] = JSON.parse(JSON.stringify(tagList.value[currentTagIndex.value]))
+  useGetItemList()
 }
 // 重置按钮点击事件
 const handleClickReset = (mark) => {
@@ -299,11 +315,13 @@ const handleOverlayClick = () => {
   tagList.value.forEach((item) => {
     item.active = false
   })
+  choosedTags.value[currentTagIndex.value].active = false
   handleClickReset()
 }
 
 // 点击跳转到详情页
-const handleClickNav = () => {
+const handleClickNav = (item) => {
+  goodsId.value = item._id
   wx.navigateTo({
     url: '/pages/goods/details/index',
   })
@@ -321,7 +339,6 @@ const clickAddFn = () => {
 
 onMounted(() => {
   console.log('onMounted')
-  useGetItemList()
   useGetTagList()
 })
 </script>
