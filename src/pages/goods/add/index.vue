@@ -14,36 +14,64 @@
         <nut-input placeholder="请输入参考价" v-model="formData2.price" type="number" :border="false" />
       </nut-form-item>
       <nut-form-item label="类别">
-        <nut-input @click="clickShowFn('category')" readonly placeholder="请选择类别" type="text" :border="false" />
+        <nut-input
+          v-model="formData2.category"
+          @click="clickShowFn('category')"
+          readonly
+          placeholder="请选择类别"
+          type="text"
+          :border="false"
+        />
       </nut-form-item>
       <nut-form-item label="产地">
-        <nut-input @click="clickShowFn('location')" readonly placeholder="请选择产地" type="text" :border="false" />
+        <nut-input
+          v-model="formData2.location"
+          @click="clickShowFn('location')"
+          readonly
+          placeholder="请选择产地"
+          type="text"
+          :border="false"
+        />
       </nut-form-item>
       <nut-form-item label="是否含糖">
         <nut-radio-group direction="horizontal" v-model="formData2.sugar">
           <template v-for="item in sugarList">
-            <nut-radio :label="item.value">{{ item.value }}</nut-radio>
+            <nut-radio :label="item.label">{{ item.label }}</nut-radio>
           </template>
         </nut-radio-group>
       </nut-form-item>
       <nut-form-item label="是否含盐">
         <nut-radio-group direction="horizontal" v-model="formData2.salt">
           <template v-for="item in saltList">
-            <nut-radio :label="item.value">{{ item.value }}</nut-radio>
+            <nut-radio :label="item.label">{{ item.label }}</nut-radio>
           </template>
         </nut-radio-group>
       </nut-form-item>
       <nut-form-item label="包装">
-        <nut-input @click="clickShowFn('wrapper')" readonly placeholder="请选择包装" type="text" :border="false" />
+        <nut-input
+          v-model="formData2.wrapper"
+          @click="clickShowFn('wrapper')"
+          readonly
+          placeholder="请选择包装"
+          type="text"
+          :border="false"
+        />
       </nut-form-item>
       <nut-form-item label="适用年龄">
-        <nut-input @click="clickShowFn('wrapper')" readonly placeholder="请选择适用年龄" type="text" :border="false" />
+        <nut-input
+          v-model="formData2.age"
+          @click="clickShowFn('age')"
+          readonly
+          placeholder="请选择适用年龄"
+          type="text"
+          :border="false"
+        />
       </nut-form-item>
       <nut-form-item label="商品图片">
         <nut-uploader
-          url="http://服务地址"
           accept="image/*"
           v-model:file-list="formData2.defaultFileList"
+          :before-xhr-upload="beforeXhrUpload"
           maximum="3"
           multiple
         >
@@ -73,20 +101,22 @@
     <nut-action-sheet
       v-model:visible="actionSheetVisible"
       :menu-items="menuItems"
+      option-tag="label"
       @choose="chooseItemFn"
     ></nut-action-sheet>
   </view>
 </template>
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useGoodsStore } from '@/store'
 const formData2 = ref({
   title: '',
-  price: null,
+  price: '',
   category: '',
   location: '',
-  wrapper: '',
   sugar: '',
   salt: '',
+  wrapper: '',
   age: '',
   switch: false,
   checkbox: false,
@@ -137,26 +167,24 @@ const addressModule = ref({
   },
 })
 
+const choosedTags = useGoodsStore().choosedTags
+const findListByKey = (key: string) => {
+  const list = choosedTags.find((item) => item.key === key)
+  return list?.value || []
+}
 // 表单相关列表数据
-const saltList = ref([])
-const wrapperList = ref([])
-const sugarList = ref([])
-const categoryList = ref([])
-const locationList = ref([])
-const ageList = ref([])
+const saltList = findListByKey('salt')
+const sugarList = findListByKey('sugar')
+const currentKey = ref('')
 
 /**
  * 输入框点击事件
  * @description: 点击输入框时，显示对应选择器
  */
 const clickShowFn = (type: string) => {
-  switch (type) {
-    case 'category':
-      formData2.value.category = '1'
-      break
-    default:
-      break
-  }
+  actionSheetVisible.value = true
+  menuItems.value = findListByKey(type)
+  currentKey.value = type
 }
 
 /**
@@ -165,7 +193,29 @@ const clickShowFn = (type: string) => {
  */
 const actionSheetVisible = ref(false)
 const menuItems = ref([])
-const chooseItemFn = (item) => {}
+const chooseItemFn = (item) => {
+  formData2.value[currentKey.value] = item.label
+}
+
+// 上传图片
+const beforeXhrUpload = (file: any, options: any) => {
+  console.log(file)
+  console.log(options.name)
+  console.log(formData2.value.defaultFileList)
+  wx.cloud.callFunction({
+    name: 'quickstartFunctions',
+    data: {
+      type: 'uploadImg',
+      fileName: file.
+    },
+    success: (res) => {
+      console.log(res)
+    },
+    fail: (err) => {
+      console.error('[云函数] [login] 调用失败', err)
+    },
+  })
+}
 
 const onChange = ({ custom, next, value }: any) => {
   formData2.value.address += value.name
@@ -181,4 +231,8 @@ const show = () => {
     formData2.value.address = ''
   }
 }
+
+onMounted(() => {
+  console.log('choosedTags', choosedTags)
+})
 </script>
