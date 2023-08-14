@@ -6,6 +6,7 @@ const updateRecord = require('./updateRecord/index')
 const sumRecord = require('./sumRecord/index')
 const selectTags = require('./selectTags/index')
 const uploadImg = require('./uploadImg/index')
+const selectDetail = require('./selectDetail/index')
 
 // 云函数入口函数
 exports.main = async (event, context) => {
@@ -26,5 +27,7 @@ exports.main = async (event, context) => {
       return await selectTags.main(event, context)
     case 'uploadImg':
       return await uploadImg.main(event, context)
+    case 'selectDetail':
+      return await selectDetail.main(event, context)
   }
 }

@@ -36,7 +36,8 @@
     "packNpmManually": false,
     "packNpmRelationList": [],
     "minifyWXSS": false,
-    "ignoreUploadUnusedFiles": true
+    "ignoreUploadUnusedFiles": true,
+    "condition": false
   },
   "compileType": "miniprogram",
   "srcMiniprogramRoot": "dist/",
@@ -46,7 +47,7 @@
   },
   "appid": "wx64387dc8bba916ec",
   "cloudfunctionRoot": "cloudfunctions/",
-  "libVersion": "2.29.2",
+  "libVersion": "2.25.3",
   "packOptions": {
     "ignore": [],
     "include": []

@@ -69,6 +69,7 @@
       </nut-form-item>
       <nut-form-item label="商品图片">
         <nut-uploader
+          ref="uploaderRef"
           accept="image/*"
           v-model:file-list="formData2.defaultFileList"
           :before-xhr-upload="beforeXhrUpload"
@@ -106,7 +107,7 @@
     ></nut-action-sheet>
   </view>
 </template>
-<script lang="ts" setup>
+<script setup>
 import { ref, onMounted } from 'vue'
 import { useGoodsStore } from '@/store'
 const formData2 = ref({
@@ -126,20 +127,20 @@ const formData2 = ref({
   range: 30,
   address: '',
   defaultFileList: [
-    {
-      name: '文件1.png',
-      url: 'https://m.360buyimg.com/babel/jfs/t1/164410/22/25162/93384/616eac6cE6c711350/0cac53c1b82e1b05.gif',
-      status: 'success',
-      message: '上传成功',
-      type: 'image',
-    },
-    {
-      name: '文件2.png',
-      url: 'https://m.360buyimg.com/babel/jfs/t1/164410/22/25162/93384/616eac6cE6c711350/0cac53c1b82e1b05.gif',
-      status: 'uploading',
-      message: '上传中...',
-      type: 'image',
-    },
+    // {
+    //   name: '文件1.png',
+    //   url: 'https://m.360buyimg.com/babel/jfs/t1/164410/22/25162/93384/616eac6cE6c711350/0cac53c1b82e1b05.gif',
+    //   status: 'success',
+    //   message: '上传成功',
+    //   type: 'image',
+    // },
+    // {
+    //   name: '文件2.png',
+    //   url: 'https://m.360buyimg.com/babel/jfs/t1/164410/22/25162/93384/616eac6cE6c711350/0cac53c1b82e1b05.gif',
+    //   status: 'uploading',
+    //   message: '上传中...',
+    //   type: 'image',
+    // },
   ],
 })
 
@@ -168,7 +169,7 @@ const addressModule = ref({
 })
 
 const choosedTags = useGoodsStore().choosedTags
-const findListByKey = (key: string) => {
+const findListByKey = (key) => {
   const list = choosedTags.find((item) => item.key === key)
   return list?.value || []
 }
@@ -181,7 +182,7 @@ const currentKey = ref('')
  * 输入框点击事件
  * @description: 点击输入框时，显示对应选择器
  */
-const clickShowFn = (type: string) => {
+const clickShowFn = (type) => {
   actionSheetVisible.value = true
   menuItems.value = findListByKey(type)
   currentKey.value = type
@@ -198,26 +199,32 @@ const chooseItemFn = (item) => {
 }
 
 // 上传图片
-const beforeXhrUpload = (file: any, options: any) => {
-  console.log(file)
-  console.log(options.name)
-  console.log(formData2.value.defaultFileList)
-  wx.cloud.callFunction({
-    name: 'quickstartFunctions',
-    data: {
-      type: 'uploadImg',
-      fileName: file.
-    },
+const uploaderRef = ref()
+const beforeXhrUpload = (file, options) => {
+  console.log(formData2.value.defaultFileList[0].path)
+  wx.getFileSystemManager().readFile({
+    filePath: formData2.value.defaultFileList[0].path,
+    encoding: 'base64',
     success: (res) => {
-      console.log(res)
-    },
-    fail: (err) => {
-      console.error('[云函数] [login] 调用失败', err)
+      wx.cloud.callFunction({
+        name: 'quickstartFunctions',
+        data: {
+          type: 'uploadImg',
+          cloudPath: 'ceshi' + '.png',
+          file: res.data,
+        },``
+        success: (res) => {
+          console.log(res)
+        },
+        fail: (err) => {
+          console.error('[云函数] [login] 调用失败', err)
+        },
+      })
     },
   })
 }
 
-const onChange = ({ custom, next, value }: any) => {
+const onChange = ({ custom, next, value }) => {
   formData2.value.address += value.name
   const name = addressModule.value.state[next]
   if (name.length < 1) {

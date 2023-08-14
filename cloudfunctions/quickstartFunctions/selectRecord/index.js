@@ -21,11 +21,6 @@ function jointParams(event) {
     },
   }
 
-  let idCon = {}
-  if (event.id) {
-    idCon[id] = event.id
-  }
-
   let otherCon = {}
   if (event.tags) {
     Object.keys(event.tags).forEach((key) => {
@@ -34,5 +29,5 @@ function jointParams(event) {
       }
     })
   }
-  return Object.assign(titleCon, otherCon, idCon)
+  return Object.assign(titleCon, otherCon)
 }

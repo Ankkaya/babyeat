@@ -2,22 +2,22 @@
   <nut-image-preview :show="showPreview" :images="imgData" @close="hideFn" />
   <view class="details">
     <nut-swiper>
-      <template v-for="item in items">
+      <template v-for="item in [snacksInfo]">
         <nut-swiper-item @click="clickSwiperFn">
           <image class="img" :src="item.imgUrl" mode="widthFix" />
         </nut-swiper-item>
       </template>
       <template v-slot:page>
-        <div class="page">1/4</div>
+        <div class="page">1/1</div>
       </template>
     </nut-swiper>
     <view class="content-one">
       <view class="price">
         <view class="price-text">参考金额</view>
-        <nut-price class="price-num" :price="info.price" :decimal-digits="2" thousands symbol="￥" />
+        <nut-price class="price-num" :price="snacksInfo?.price" :decimal-digits="2" thousands symbol="￥" />
       </view>
       <view class="title">
-        {{ info.title }}
+        {{ snacksInfo?.title }}
       </view>
     </view>
     <view class="content-two">
@@ -29,10 +29,10 @@
             <view class="text"> 规格参数 </view>
           </view>
           <view class="params">
-            <template v-for="item in paramsList">
+            <template v-for="item in paramsOther">
               <view class="params-item">
-                <view class="params-item-title">{{ item.value }}</view>
-                <view class="params-item-con">{{ item.key }}</view>
+                <view class="params-item-title">{{ item?.label }}</view>
+                <view class="params-item-con">{{ snacksInfo && snacksInfo[item.key] }}</view>
               </view>
             </template>
           </view>
@@ -43,7 +43,9 @@
             <Shop class="param-title-tips" />
             <view class="text"> 位置信息 </view>
           </view>
-          <view class="addr" @click="clickNavFn"> 河南省洛阳市涧西区武汉路与西三环交叉口向西200米路南 大张超市 </view>
+          <view class="addr" @click="clickNavFn">
+            {{ snacksInfo?.addr?.text ?? '空' }} {{ snacksInfo?.addr?.name ?? ' 空' }}
+          </view>
         </view>
       </view>
     </view>
@@ -72,61 +74,23 @@ import Taro from '@tarojs/taro'
 import { useGoodsStore } from '@/store'
 import { onMounted } from 'vue'
 
-const items = ref([
-  {
-    imgUrl: 'https://img10.360buyimg.com/n1/jfs/t1/139559/36/33075/130633/63da3034F8d7e51ac/f6303e46856c451a.jpg',
-    price: 29.9,
-    title: '秋田满满 婴儿零食手指泡芙条原味宝宝零食泡芙婴儿小饼干罐装36g',
-  },
-  {
-    imgUrl: 'https://img10.360buyimg.com/n1/jfs/t1/139559/36/33075/130633/63da3034F8d7e51ac/f6303e46856c451a.jpg',
-    price: 29.9,
-    title: '秋田满满 婴儿零食手指泡芙条原味宝宝零食泡芙婴儿小饼干罐装36g',
-  },
-])
-const info = {
-  price: 29.9,
-  title: '秋田满满 婴儿零食手指泡芙条原味宝宝零食泡芙婴儿小饼干罐装36g',
-  star: false,
-  follow: false,
-}
-const paramsList = ref([
-  {
-    key: 'category',
-    value: '类别',
-  },
-  {
-    key: 'age',
-    value: '适用年龄',
-  },
-  {
-    key: 'wrapper',
-    value: '包装形式',
-  },
-  {
-    key: 'saltsaltsaltsaltsaltsaltsaltsaltsaltsaltsaltsaltsaltsaltsaltsaltsaltsaltsaltsaltsaltsalt',
-    value: '是否含盐',
-  },
-  {
-    key: 'taste',
-    value: '口味',
-  },
-])
-
+// 获取类别列表
+const paramsOther = useGoodsStore().choosedTags
 /**
  * 获取零食详情
  * @description 获取零食详情
  * @param {Function} useGetItemDetail 获取零食详情
  */
+const snacksInfo = ref({})
 const useGetItemDetail = (id) => {
   wx.cloud.callFunction({
     name: 'quickstartFunctions',
     data: {
-      type: 'selectRecord',
+      type: 'selectDetail',
       id: id,
     },
     success: (res) => {
-      console.log(res)
+      snacksInfo.value = res.result.data
     },
     fail: (err) => {
       console.error('[云函数] [login] 调用失败', err)
