@@ -8,3 +8,15 @@ export function debounce(fn: Function, delay: number) {
     timer = setTimeout(fn, delay)
   }
 }
+
+// 生成时间标识 年_月_日_时_分_秒
+export function getTimeStamp() {
+  const date = new Date()
+  const year = date.getFullYear()
+  const month = date.getMonth() + 1
+  const day = date.getDay()
+  const hour = date.getHours()
+  const minute = date.getMinutes()
+  const second = date.getSeconds()
+  return `${year}_${month}_${day}_${hour}_${minute}_${second}`
+}

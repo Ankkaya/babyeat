@@ -8,7 +8,6 @@ export {}
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     NutActionSheet: typeof import('@nutui/nutui-taro')['ActionSheet']
-    NutAddress: typeof import('@nutui/nutui-taro')['Address']
     NutButton: typeof import('@nutui/nutui-taro')['Button']
     NutEmpty: typeof import('@nutui/nutui-taro')['Empty']
     NutForm: typeof import('@nutui/nutui-taro')['Form']

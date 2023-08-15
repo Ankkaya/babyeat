@@ -80,25 +80,18 @@
       </nut-form-item>
       <nut-form-item label="地址">
         <nut-input
-          class="nut-input-text"
+          class="address"
           v-model="formData2.address"
-          @click="show"
+          @click="clickChooseAddr"
           readonly
           placeholder="请选择地址"
           type="text"
         />
-        <!-- nut-address -->
-        <nut-address
-          v-model:visible="addressModule.state.show"
-          :province="addressModule.state.province"
-          :city="addressModule.state.city"
-          :country="addressModule.state.country"
-          :town="addressModule.state.town"
-          @change="onChange"
-          custom-address-title="请选择所在地区"
-        ></nut-address>
       </nut-form-item>
     </nut-form>
+    <view class="bottom-control">
+      <nut-button style="width: 100%" type="primary" @click="clickConfirmFn">确定</nut-button>
+    </view>
     <nut-action-sheet
       v-model:visible="actionSheetVisible"
       :menu-items="menuItems"
@@ -108,8 +101,11 @@
   </view>
 </template>
 <script setup>
+import './index.scss'
 import { ref, onMounted } from 'vue'
 import { useGoodsStore } from '@/store'
+import { getTimeStamp } from '@/utils'
+import { $ } from '@tarojs/extend'
 const formData2 = ref({
   title: '',
   price: '',
@@ -125,7 +121,7 @@ const formData2 = ref({
   number: 0,
   rate: 3,
   range: 30,
-  address: '',
+  address: 'addressaddressaddressaddressaddressaddressaddress1111111',
   defaultFileList: [
     // {
     //   name: '文件1.png',
@@ -144,30 +140,6 @@ const formData2 = ref({
   ],
 })
 
-const addressModule = ref({
-  state: {
-    show: false,
-    province: [
-      { id: 1, name: '北京' },
-      { id: 2, name: '广西' },
-      { id: 3, name: '江西' },
-      { id: 4, name: '四川' },
-    ],
-    city: [
-      { id: 7, name: '朝阳区' },
-      { id: 8, name: '崇文区' },
-      { id: 9, name: '昌平区' },
-      { id: 6, name: '石景山区' },
-    ],
-    country: [
-      { id: 3, name: '八里庄街道' },
-      { id: 9, name: '北苑' },
-      { id: 4, name: '常营乡' },
-    ],
-    town: [],
-  },
-})
-
 const choosedTags = useGoodsStore().choosedTags
 const findListByKey = (key) => {
   const list = choosedTags.find((item) => item.key === key)
@@ -177,6 +149,33 @@ const findListByKey = (key) => {
 const saltList = findListByKey('salt')
 const sugarList = findListByKey('sugar')
 const currentKey = ref('')
+
+// 地址超出滚动动画
+const addressRef = ref()
+// 判断内容是否溢出
+const isOverflow = () => {
+  console.log($('.address')[0].style.offsetWidth)
+  console.log($('.address'))
+  const el = addressRef.value.$el
+  console.log(el)
+  // 获取 addressRef 宽度
+  const offsetWidth = el.offsetWidth
+  // 获取 addressRef 内容宽度
+  const scrollWidth = el.scrollWidth
+  console.log(offsetWidth, scrollWidth)
+  // 判断是否溢出
+  const isOverflowing = offsetWidth < scrollWidth
+  return isOverflowing
+}
+// 选择地址
+const clickChooseAddr = () => {
+  console.log(isOverflow())
+  wx.chooseLocation({
+    success: (res) => {
+      formData2.value.address = res.address
+    },
+  })
+}
 
 /**
  * 输入框点击事件
@@ -202,41 +201,26 @@ const chooseItemFn = (item) => {
 const uploaderRef = ref()
 const beforeXhrUpload = (file, options) => {
   console.log(formData2.value.defaultFileList[0].path)
-  wx.getFileSystemManager().readFile({
-    filePath: formData2.value.defaultFileList[0].path,
-    encoding: 'base64',
-    success: (res) => {
-      wx.cloud.callFunction({
-        name: 'quickstartFunctions',
-        data: {
-          type: 'uploadImg',
-          cloudPath: 'ceshi' + '.png',
-          file: res.data,
-        },``
-        success: (res) => {
-          console.log(res)
-        },
-        fail: (err) => {
-          console.error('[云函数] [login] 调用失败', err)
-        },
-      })
-    },
-  })
-}
-
-const onChange = ({ custom, next, value }) => {
-  formData2.value.address += value.name
-  const name = addressModule.value.state[next]
-  if (name.length < 1) {
-    addressModule.value.state.show = false
-  }
-}
-
-const show = () => {
-  addressModule.value.state.show = !addressModule.value.state.show
-  if (addressModule.value.state.show) {
-    formData2.value.address = ''
-  }
+  // wx.getFileSystemManager().readFile({
+  //   filePath: formData2.value.defaultFileList[0].path,
+  //   encoding: 'base64',
+  //   success: (res) => {
+  //     wx.cloud.callFunction({
+  //       name: 'quickstartFunctions',
+  //       data: {
+  //         type: 'uploadImg',
+  //         cloudPath: getTimeStamp() + '.png',
+  //         file: res.data,
+  //       },
+  //       success: (res) => {
+  //         console.log(res)
+  //       },
+  //       fail: (err) => {
+  //         console.error('[云函数] [login] 调用失败', err)
+  //       },
+  //     })
+  //   },
+  // })
 }
 
 onMounted(() => {
