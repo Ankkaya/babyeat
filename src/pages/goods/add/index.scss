@@ -8,6 +8,36 @@ page {
     margin-top: 4px;
     margin-left: 4px;
   }
+  .nut-form-item__body {
+    overflow: hidden;
+  }
+  .addr-wrapper {
+    .addr-content {
+      display: inline-block;
+      white-space: nowrap;
+      text-overflow: clip;
+      overflow: hidden;
+    }
+    // 只跑一次
+    .play {
+      animation: play linear both running;
+    }
+    .play-infinite {
+      animation: play-infinite linear infinite both running;
+    }
+
+    @keyframes play {
+      to {
+        transform: translate3d(-100%, 0, 0);
+      }
+    }
+
+    @keyframes play-infinite {
+      to {
+        transform: translateX(-100%);
+      }
+    }
+  }
   .bottom-control {
     position: fixed;
     z-index: 1000;

@@ -79,14 +79,23 @@
         </nut-uploader>
       </nut-form-item>
       <nut-form-item label="地址">
-        <nut-input
+        <!-- <nut-input
           class="address"
           v-model="formData2.address"
           @click="clickChooseAddr"
-          readonly
           placeholder="请选择地址"
           type="text"
-        />
+        /> -->
+        <view class="addr-wrapper">
+          <view
+            :class="['addr-content', wrapContentClass]"
+            :style="contentStyle"
+            @click="clickChooseAddr"
+            @animationend="onAnimationEnd"
+            @webkit-animation-end="onAnimationEnd"
+            >{{ formData2.address }}</view
+          >
+        </view>
       </nut-form-item>
     </nut-form>
     <view class="bottom-control">
@@ -102,10 +111,20 @@
 </template>
 <script setup>
 import './index.scss'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useGoodsStore } from '@/store'
 import { getTimeStamp } from '@/utils'
 import { $ } from '@tarojs/extend'
+const options = ref({
+  speed: 50,
+  duration: 0,
+  animationClass: '',
+  contentWidth: 0,
+  wrapperWidth: 0,
+  delay: 0.5,
+  firstRound: true,
+  id: Math.round(Math.random() * 100000),
+})
 const formData2 = ref({
   title: '',
   price: '',
@@ -121,7 +140,7 @@ const formData2 = ref({
   number: 0,
   rate: 3,
   range: 30,
-  address: 'addressaddressaddressaddressaddressaddressaddress1111111',
+  address: '点击选择地址',
   defaultFileList: [
     // {
     //   name: '文件1.png',
@@ -151,25 +170,61 @@ const sugarList = findListByKey('sugar')
 const currentKey = ref('')
 
 // 地址超出滚动动画
-const addressRef = ref()
 // 判断内容是否溢出
-const isOverflow = () => {
-  console.log($('.address')[0].style.offsetWidth)
-  console.log($('.address'))
-  const el = addressRef.value.$el
-  console.log(el)
-  // 获取 addressRef 宽度
-  const offsetWidth = el.offsetWidth
-  // 获取 addressRef 内容宽度
-  const scrollWidth = el.scrollWidth
-  console.log(offsetWidth, scrollWidth)
-  // 判断是否溢出
-  const isOverflowing = offsetWidth < scrollWidth
-  return isOverflowing
+const isOverflow = async () => {
+  options.value.wrapperWidth = await $('.addr-wrapper').width()
+  options.value.contentWidth = await $('.addr-content').width()
+  return options.value.contentWidth > options.value.wrapperWidth
 }
+
+const wrapContentClass = computed(() => {
+  return {
+    [`content${options.value.id}`]: true,
+    [options.value.animationClass]: true,
+  }
+})
+
+const contentStyle = computed(() => {
+  return {
+    animationDelay: (options.value.firstRound ? options.value.delay : 0) + 's',
+    animationDuration: options.value.duration + 's',
+    transform: `translateX(${options.value.firstRound ? 0 : options.value.wrapperWidth + 'px'})`,
+  }
+})
+
+watch(
+  () => formData2.value.address,
+  async (newVal, oldVal) => {
+    console.log(newVal)
+    if (newVal) {
+      if (await isOverflow()) {
+        options.value.duration = options.value.contentWidth / options.value.speed
+        options.value.animationClass = 'play-infinite'
+      } else {
+        options.value.animationClass = ''
+      }
+    }
+  }
+)
+
+/**
+ * !! 动画结束事件未触发，待解决
+ */
+const onAnimationEnd = (event) => {
+  console.log(event)
+  options.value.firstRound = false
+  setTimeout(() => {
+    options.value.duration = (options.value.contentWidth + options.value.wrapperWidth) / options.value.speed
+    options.value.animationClass = 'play-infinite'
+  }, 0)
+}
+
 // 选择地址
-const clickChooseAddr = () => {
-  console.log(isOverflow())
+const clickChooseAddr = async () => {
+  if (await isOverflow()) {
+    options.value.duration = options.value.contentWidth / options.value.speed
+    options.value.animationClass = 'play-infinite'
+  }
   wx.chooseLocation({
     success: (res) => {
       formData2.value.address = res.address
@@ -223,7 +278,5 @@ const beforeXhrUpload = (file, options) => {
   // })
 }
 
-onMounted(() => {
-  console.log('choosedTags', choosedTags)
-})
+onMounted(() => {})
 </script>
