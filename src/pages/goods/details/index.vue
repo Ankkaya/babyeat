@@ -44,7 +44,9 @@
             <view class="text"> 位置信息 </view>
           </view>
           <view class="addr" @click="clickNavFn">
-            {{ snacksInfo?.addr?.text ?? '空' }} {{ snacksInfo?.addr?.name ?? ' 空' }}
+            <template v-if="snacksInfo.addressInfo.name"> </template>
+            <template v-else> 暂无地址信息 </template>
+            {{ snacksInfo.addressInfo.address + ' ' + snacksInfo.addressInfo.name }}
           </view>
         </view>
       </view>

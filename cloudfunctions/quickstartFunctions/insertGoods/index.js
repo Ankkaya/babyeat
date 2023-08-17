@@ -5,23 +5,25 @@ cloud.init({
 })
 const db = cloud.database()
 
-// 查询数据库集合云函数入口函数
+// 查询数据库集合
 exports.main = async (event, context) => {
-  // 返回数据库查询结果
-  return await db.collection('goods').add({ data: jointParams(event) })
+  await db.collection('goods').add({ data: jointParams(event) })
+  return {
+    sucess: true,
+  }
 }
 
 function jointParams(event) {
-  return (obj = {
-    title: event.title,
-    price: event.price ?? 0,
-    category: event.category,
-    location: event.location,
-    sugar: event.sugar,
-    salt: event.salt,
-    wrapper: event.wrapper,
-    age: event.age,
-    imgList: event.imgList,
-    addressInfo: event.addressInfo,
-  })
+  return {
+    title: event.data.title,
+    price: event.data.price ?? 0,
+    category: event.data.category,
+    location: event.data.location,
+    sugar: event.data.sugar,
+    salt: event.data.salt,
+    wrapper: event.data.wrapper,
+    age: event.data.age,
+    imgList: event.data.imgList,
+    addressInfo: event.data.addressInfo,
+  }
 }

@@ -1,17 +1,11 @@
 <template>
   <view class="add">
-    <nut-form ref="formRef" :rules="rules">
+    <nut-form ref="formRef" :rules="rules" :model-value="formData2">
       <nut-form-item label="商品名称" prop="title">
-        <nut-textarea
-          class="title-textarea"
-          v-model="formData2.title"
-          placeholder="请输入商品名称"
-          :rows="1"
-          autosize
-        />
+        <nut-input class="form-input" v-model="formData2.title" placeholder="请输入商品名称 " :border="false" />
       </nut-form-item>
       <nut-form-item label="参考价" prop="price">
-        <nut-input placeholder="请输入参考价" v-model="formData2.price" type="number" :border="false" />
+        <nut-input placeholder="请输入参考价" v-model="formData2.price" type="digit" :border="false" />
       </nut-form-item>
       <nut-form-item label="类别" prop="category">
         <nut-input
@@ -120,7 +114,6 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useGoodsStore } from '@/store'
 import { getTimeStamp } from '@/utils'
 import { $ } from '@tarojs/extend'
-
 const rules = ref({
   title: [
     {
@@ -261,7 +254,21 @@ const beforeXhrUpload = (file, options) => {
 const clickConfirmFn = () => {
   formRef.value.validate().then((valid, errors) => {
     if (valid) {
-      console.log(formData2.value)
+      let obj = JSON.parse(JSON.stringify(formData2.value))
+      obj.imgList = obj.imgList.map((item) => item.id)
+      wx.cloud.callFunction({
+        name: 'quickstartFunctions',
+        data: {
+          type: 'insertGoods',
+          data: obj,
+        },
+        success: (res) => {
+          console.log(res)
+        },
+        fail: (err) => {
+          console.error('[云函数] [login] 调用失败', err)
+        },
+      })
     } else {
       console.log('error submit!!', errors)
     }

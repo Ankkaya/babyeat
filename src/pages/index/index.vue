@@ -322,7 +322,7 @@ const handleOverlayClick = () => {
 // 点击跳转到详情页
 const handleClickNav = (item) => {
   goodsId.value = item._id
-  wx.navigateTo({
+  navigateTo({
     url: '/pages/goods/details/index',
   })
 }
