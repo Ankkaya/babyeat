@@ -11,12 +11,21 @@ page {
   .nut-form-item__body {
     overflow: hidden;
   }
+  .nut-uploader {
+    padding-top: 24px;
+  }
+  .nut-form-item__body__tips {
+    margin-left: 6px;
+  }
   .addr-wrapper {
+    // .addr-content {
+    //   display: inline-block;
+    //   white-space: nowrap;
+    //   text-overflow: clip;
+    //   overflow: hidden;
+    // }
     .addr-content {
-      display: inline-block;
-      white-space: nowrap;
-      text-overflow: clip;
-      overflow: hidden;
+      word-break: break-word;
     }
     // 只跑一次
     .play {
