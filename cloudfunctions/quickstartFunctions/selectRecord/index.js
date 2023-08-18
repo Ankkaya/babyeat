@@ -5,29 +5,33 @@ cloud.init({
 })
 const db = cloud.database()
 const _ = db.command
-console.log('selectRecord/index.js: db:', db)
 
 // 查询数据库集合云函数入口函数
 exports.main = async (event, context) => {
   // 返回数据库查询结果
   let res = await db.collection('goods').where(jointParams(event)).get()
-  res.data.forEach(async (item) => {
-    let arr = [...item.imgList]
-    let sres = await db
-      .collection('imgs')
-      .where({
-        _id: _.in(arr),
-      })
-      .field({
-        _id: false,
-        fileId: true,
-      })
-      .get()
-    item.imgList = sres.data
-  })
+
+  // 循环res.data,并同步执行数据库查询
+  for (let i of res.data) {
+    let imgsRes = await getImgById(i.imgList)
+    i.imgList = imgsRes.data
+  }
   return res
 }
 
+// 根据图片 id 查询图片地址并返回
+function getImgById(arr) {
+  return db
+    .collection('imgs')
+    .where({
+      _id: _.in(arr),
+    })
+    .field({
+      _id: false,
+      fileId: true,
+    })
+    .get()
+}
 function jointParams(event) {
   let titleCon = {
     title: {

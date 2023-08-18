@@ -49,7 +49,7 @@
             <!-- 添加长按事件 -->
             <image
               class="img"
-              :src="item.imgUrl"
+              :src="calImgSrcFn(item.imgList)"
               mode="scaleToFill"
               :animation="animationShake"
               @longpress="handleLongPress(index)"
@@ -60,7 +60,7 @@
               </view>
               <view class="tags">
                 <template v-for="sitem in item.tags">
-                  <view class="tag">{{ sitem }}</view>
+                  <view v-if="sitem" class="tag">{{ sitem }}</view>
                 </template>
               </view>
               <view class="price">
@@ -71,7 +71,7 @@
           </view>
         </template>
       </template>
-      <template> <nut-empty description="暂无数据"></nut-empty></template>
+      <template v-else> <nut-empty description="暂无数据"></nut-empty></template>
     </view>
   </view>
   <view class="add" @click="clickAddFn">
@@ -96,6 +96,8 @@ import {
 } from '@tarojs/taro'
 import { useGoodsStore } from '@/store'
 import { storeToRefs } from 'pinia'
+import noImg from '@/assets/imgs/no-img.png'
+import { selectGoods } from '@/api/goods'
 
 const { choosedTags, goodsId } = storeToRefs(useGoodsStore())
 const { setChoosedTags } = useGoodsStore()
@@ -213,7 +215,8 @@ const useGetTagList = () => {
     },
     success: (res) => {
       console.log('[云函数] [login] user openid: ', res)
-      useGetItemList()
+      // useGetItemList()
+      selectGoods()
       // 分类添加 active 属性
       res.result.data.forEach((item) => {
         item.active = false
@@ -248,6 +251,14 @@ const useGetTagList = () => {
       console.error('[云函数] [login] 调用失败', err)
     },
   })
+}
+// 默认获取商品第一张图片
+const calImgSrcFn = (imgList) => {
+  if (imgList.length > 0) {
+    return imgList[0].fileId
+  } else {
+    return noImg
+  }
 }
 
 // 分类点击逻辑

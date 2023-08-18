@@ -17,7 +17,6 @@ exports.main = async (event, context) => {
     img = await db.collection('imgs').add({
       data: {
         fileId: uploadResult.fileID,
-        goodsId: '',
       },
     })
   }

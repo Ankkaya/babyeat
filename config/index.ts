@@ -6,9 +6,7 @@ const config = {
   projectName: 'babyeat',
   date: '2023-8-1',
   alias: {
-    '@/components': path.resolve(__dirname, '..', 'src/components'),
-    '@/utils': path.resolve(__dirname, '..', 'src/utils'),
-    '@/store': path.resolve(__dirname, '..', 'src/store'),
+    '@': path.resolve(__dirname, '..', 'src/'),
   },
   designWidth(input) {
     if (input?.file?.replace(/\\+/g, '/').indexOf('@nutui') > -1) {
