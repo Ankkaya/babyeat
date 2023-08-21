@@ -9,7 +9,12 @@ const _ = db.command
 // 查询数据库集合云函数入口函数
 exports.main = async (event, context) => {
   // 返回数据库查询结果
-  let res = await db.collection('goods').where(jointParams(event)).get()
+  let res = await db
+    .collection('goods')
+    .skip(event.pageNum)
+    .limit(event.pageSize ?? 5)
+    .where(jointParams(event))
+    .get()
 
   // 循环res.data,并同步执行数据库查询
   for (let i of res.data) {

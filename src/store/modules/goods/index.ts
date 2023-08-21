@@ -9,7 +9,7 @@ export const useGoodsStore = defineStore('goods', {
   },
   actions: {
     setChoosedTags(tags) {
-      this.choosedTags.push(tags)
+      this.choosedTags = tags
     },
   },
 })

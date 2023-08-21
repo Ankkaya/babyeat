@@ -1,3 +1,4 @@
+import Taro from '@tarojs/taro'
 // 防抖函数
 export function debounce(fn: Function, delay: number) {
   let timer: any = null
@@ -19,4 +20,14 @@ export function getTimeStamp() {
   const minute = date.getMinutes()
   const second = date.getSeconds()
   return `${year}_${month}_${day}_${hour}_${minute}_${second}`
+}
+
+// 消息提示
+export function showToast(title, icon = 'none') {
+  Taro.showToast({
+    title,
+    //@ts-ignore
+    icon,
+    duration: 2000,
+  })
 }

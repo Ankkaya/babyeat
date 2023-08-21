@@ -1,14 +1,14 @@
 <template>
   <nut-image-preview :show="showPreview" :images="imgData" @close="hideFn" />
   <view class="details">
-    <nut-swiper>
-      <template v-for="item in [snacksInfo]">
+    <nut-swiper @change="changeSwiperFn">
+      <template v-for="item in snacksInfo.imgList">
         <nut-swiper-item @click="clickSwiperFn">
-          <image class="img" :src="item.imgUrl" mode="widthFix" />
+          <image class="img" :src="item.fileId" mode="widthFix" />
         </nut-swiper-item>
       </template>
       <template v-slot:page>
-        <div class="page">1/1</div>
+        <div class="page">{{ currentIndex + 1 }}/{{ snacksInfo?.imgList?.length }}</div>
       </template>
     </nut-swiper>
     <view class="content-one">
@@ -44,9 +44,10 @@
             <view class="text"> 位置信息 </view>
           </view>
           <view class="addr" @click="clickNavFn">
-            <template v-if="snacksInfo.addressInfo.name"> </template>
+            <template v-if="snacksInfo?.addressInfo?.name">
+              {{ snacksInfo.addressInfo.address + ' ' + snacksInfo.addressInfo.name }}
+            </template>
             <template v-else> 暂无地址信息 </template>
-            {{ snacksInfo.addressInfo.address + ' ' + snacksInfo.addressInfo.name }}
           </view>
         </view>
       </view>
@@ -75,6 +76,7 @@ import { ref } from 'vue'
 import Taro from '@tarojs/taro'
 import { useGoodsStore } from '@/store'
 import { onMounted } from 'vue'
+import { selectDetail } from '@/api/goods'
 
 // 获取类别列表
 const paramsOther = useGoodsStore().choosedTags
@@ -85,27 +87,22 @@ const paramsOther = useGoodsStore().choosedTags
  */
 const snacksInfo = ref({})
 const useGetItemDetail = (id) => {
-  wx.cloud.callFunction({
-    name: 'quickstartFunctions',
-    data: {
-      type: 'selectDetail',
-      id: id,
-    },
-    success: (res) => {
-      snacksInfo.value = res.result.data
-    },
-    fail: (err) => {
-      console.error('[云函数] [login] 调用失败', err)
-    },
+  selectDetail({ id: id }).then((res) => {
+    snacksInfo.value = res.data
   })
 }
 
 const imgData = ref([])
 const showPreview = ref(false)
+const currentIndex = ref(0)
+// 轮播图切换事件
+const changeSwiperFn = (e) => {
+  currentIndex.value = e
+}
 
 // 轮播图点击事件
 const clickSwiperFn = () => {
-  imgData.value = items.value.map((item) => ({ src: item.imgUrl }))
+  imgData.value = snacksInfo.value.imgList.map((item) => ({ src: item.fileId }))
   showPreview.value = true
 }
 // 隐藏预览图
@@ -149,12 +146,14 @@ const bcbClickFn = (index, item) => {
 
 // 地图导航
 const clickNavFn = () => {
-  Taro.openLocation({
-    latitude: 34.75661,
-    longitude: 113.649643,
-    name: '牡丹图文',
-    address: 'wuhanlu',
-  })
+  if (snacksInfo?.addressInfo?.name) {
+    Taro.openLocation({
+      latitude: snacksInfo.value.addressInfo.latitude,
+      longitude: snacksInfo.value.addressInfo.longitude,
+      name: snacksInfo.value.addressInfo.name,
+      address: snacksInfo.value.addressInfo.address,
+    })
+  }
 }
 
 onMounted(() => {

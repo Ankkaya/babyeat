@@ -62,24 +62,22 @@
         />
       </nut-form-item>
       <nut-form-item label="商品图片" prop="imgList">
-        <nut-uploader
-          ref="uploaderRef"
-          accept="image/*"
-          v-model:file-list="formData2.imgList"
-          :before-xhr-upload="beforeXhrUpload"
-          maximum="3"
-          multiple
-        >
-        </nut-uploader>
+        <template #default>
+          <nut-uploader
+            ref="uploaderRef"
+            :media-type="['image']"
+            :maximize="1024 * 1024 * 2"
+            v-model:file-list="formData2.imgList"
+            :before-xhr-upload="beforeXhrUpload"
+            maximum="3"
+            multiple
+            @oversize="oversizeFn"
+          >
+          </nut-uploader>
+          <view class="img-hint">上传图片最大不能超过 2M</view>
+        </template>
       </nut-form-item>
       <nut-form-item label="地址">
-        <!-- <nut-input
-          class="address"
-          v-model="formData2.address"
-          @click="clickChooseAddr"
-          placeholder="请选择地址"
-          type="text"
-        /> -->
         <view class="addr-wrapper">
           <!-- 地址不适合滚动动画 -->
           <!-- 内容过多，换行处理 -->
@@ -106,14 +104,23 @@
       option-tag="label"
       @choose="chooseItemFn"
     ></nut-action-sheet>
+    <!-- 数字键盘 -->
+    <nut-number-keyboard v-model:visible="visible" @input="input" @delete="onDelete" @close="close">
+    </nut-number-keyboard>
   </view>
 </template>
 <script setup>
 import './index.scss'
-import { ref, onMounted, computed, watch } from 'vue'
+import Taro from '@tarojs/taro'
+import { ref, onMounted, computed, watch, inject } from 'vue'
 import { useGoodsStore } from '@/store'
 import { getTimeStamp } from '@/utils'
 import { $ } from '@tarojs/extend'
+import { addGoods } from '@/api/goods'
+
+// inject
+const showToast = inject('$showToast')
+
 const rules = ref({
   title: [
     {
@@ -249,25 +256,19 @@ const beforeXhrUpload = (file, options) => {
     },
   })
 }
+const oversizeFn = (files) => {
+  showToast('图片大小不能超过 2M', 'none', 2000)
+}
 
 // 表单提交
 const clickConfirmFn = () => {
-  formRef.value.validate().then((valid, errors) => {
+  formRef.value.validate().then(({ valid, erro }) => {
     if (valid) {
       let obj = JSON.parse(JSON.stringify(formData2.value))
       obj.imgList = obj.imgList.map((item) => item.id)
-      wx.cloud.callFunction({
-        name: 'quickstartFunctions',
-        data: {
-          type: 'insertGoods',
-          data: obj,
-        },
-        success: (res) => {
-          console.log(res)
-        },
-        fail: (err) => {
-          console.error('[云函数] [login] 调用失败', err)
-        },
+      addGoods(obj).then((res) => {
+        showToast('添加成功', 'success', 2000)
+        Taro.navigateBack()
       })
     } else {
       console.log('error submit!!', errors)

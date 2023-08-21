@@ -82,6 +82,7 @@
 <script setup>
 import './index.scss'
 import { $ } from '@tarojs/extend'
+import { useDidShow } from '@tarojs/taro'
 import { ref, onMounted, watchEffect, computed } from 'vue'
 import { Search2, DownArrow, Check, JoySmile, Uploader } from '@nutui/icons-vue-taro'
 import { debounce } from '@/utils'
@@ -97,19 +98,19 @@ import {
 import { useGoodsStore } from '@/store'
 import { storeToRefs } from 'pinia'
 import noImg from '@/assets/imgs/no-img.png'
-import { selectGoods } from '@/api/goods'
+import { selectGoods, selectTags } from '@/api/goods'
 
 const { choosedTags, goodsId } = storeToRefs(useGoodsStore())
 const { setChoosedTags } = useGoodsStore()
-usePullDownRefresh(() => {
-  stopPullDownRefresh({
-    complete: () => {
-      console.log('下拉刷新')
-    },
-  })
+
+usePullDownRefresh(async () => {
+  queryParams.value.pageNum = 1
+  useGetTagList()
 })
 
 useReachBottom(() => {
+  queryParams.value.pageNum++
+  useGetItemList()
   console.log('上拉加载')
 })
 
@@ -120,7 +121,10 @@ useReachBottom(() => {
  * @param {Function} useGetItemList 获取商品列表
  */
 const itemList = ref([])
-
+const queryParams = ref({
+  pageNum: 1,
+  pageSize: 5,
+})
 const tagsParams = computed(() => {
   let obj = {}
   choosedTags.value.forEach((item) => {
@@ -130,24 +134,21 @@ const tagsParams = computed(() => {
 })
 
 const useGetItemList = () => {
-  wx.cloud.callFunction({
-    name: 'quickstartFunctions',
-    data: {
-      type: 'selectRecord',
-      title: searchValue.value,
-      tags: tagsParams.value,
-    },
-    success: (res) => {
-      console.log('[云函数] [login] user openid: ', res)
-      // 分类属性统一添加到结果的 tags 属性
-      res.result.data.forEach((item) => {
-        item.tags = tagList.value.map((sitem) => item[sitem.key])
-      })
-      itemList.value = res.result.data
-    },
-    fail: (err) => {
-      console.error('[云函数] [login] 调用失败', err)
-    },
+  selectGoods({
+    title: searchValue.value,
+    tags: tagsParams.value,
+    ...queryParams.value,
+  }).then((res) => {
+    // 分类属性统一添加到结果的 tags 属性
+    res.data.forEach((item) => {
+      item.tags = tagList.value.map((sitem) => item[sitem.key])
+    })
+    itemList.value = res.data
+    stopPullDownRefresh({
+      complete: () => {
+        console.log('下拉刷新')
+      },
+    })
   })
 }
 
@@ -156,6 +157,7 @@ const searchValue = ref('')
 const debounceSearch = debounce(useGetItemList, 1000)
 const handleSearchChange = (value) => {
   searchValue.value = value
+  queryParams.value.pageNum = 1
   debounceSearch()
 }
 
@@ -208,48 +210,39 @@ const tagList = ref([])
 const currentTagIndex = ref(-1)
 // 获取分类列表
 const useGetTagList = () => {
-  wx.cloud.callFunction({
-    name: 'quickstartFunctions',
-    data: {
-      type: 'selectTags',
-    },
-    success: (res) => {
-      console.log('[云函数] [login] user openid: ', res)
-      // useGetItemList()
-      selectGoods()
-      // 分类添加 active 属性
-      res.result.data.forEach((item) => {
-        item.active = false
+  selectTags().then((res) => {
+    useGetItemList()
+    // 分类添加 active 属性
+    res.data.forEach((item) => {
+      item.active = false
+    })
+    // 获取当前分类下的详情，添加是否选中的属性
+    let arr = []
+    res.data.forEach((data) => {
+      data.value = data.value.map((sdata) => {
+        return {
+          label: sdata,
+          chooseLabel: '',
+          active: false,
+        }
       })
-      // 获取当前分类下的详情，添加是否选中的属性
-      res.result.data.forEach((data) => {
-        data.value = data.value.map((sdata) => {
-          return {
-            label: sdata,
-            chooseLabel: '',
-            active: false,
-          }
-        })
-        setChoosedTags(JSON.parse(JSON.stringify(data)))
+      arr.push(JSON.parse(JSON.stringify(data)))
+    })
+    setChoosedTags(arr)
+    tagList.value = res.data
+    nextTick(() => {
+      $('.tag-item-text').forEach(async (item) => {
+        item.style.maxWidth = (await $(item).width()) + 'px'
       })
-      tagList.value = res.result.data
-      nextTick(() => {
-        $('.tag-item-text').forEach(async (item) => {
-          item.style.maxWidth = (await $(item).width()) + 'px'
-        })
-        // 小程序操作 dom 的方式
-        // const query = createSelectorQuery()
-        // query.selectAll('#tagId').boundingClientRect()
-        // query.exec((sres) => {
-        //   sres.forEach((titem) => {
-        //     titem.maxWidth = titem.width + 'px'
-        //   })
-        // })
-      })
-    },
-    fail: (err) => {
-      console.error('[云函数] [login] 调用失败', err)
-    },
+      // 小程序操作 dom 的方式
+      // const query = createSelectorQuery()
+      // query.selectAll('#tagId').boundingClientRect()
+      // query.exec((sres) => {
+      //   sres.forEach((titem) => {
+      //     titem.maxWidth = titem.width + 'px'
+      //   })
+      // })
+    })
   })
 }
 // 默认获取商品第一张图片
@@ -348,8 +341,12 @@ const clickAddFn = () => {
   })
 }
 
-onMounted(() => {
-  console.log('onMounted')
+// onMounted(() => {
+//   console.log('onMounted')
+//   useGetTagList()
+// })
+useDidShow(() => {
+  console.log('onShow')
   useGetTagList()
 })
 </script>
