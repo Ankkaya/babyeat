@@ -6,6 +6,7 @@ function callFunction(data) {
       name: 'quickstartFunctions',
       data: data,
       success: (res) => {
+        console.log(res)
         Taro.hideLoading()
         resolve(res.result)
       },

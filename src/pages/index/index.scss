@@ -95,6 +95,13 @@ page {
 }
 .content {
   padding-bottom: 10px;
+  .bottom-no-data {
+    display: flex;
+    font-size: 28px;
+    justify-content: center;
+    align-items: center;
+    color: #999;
+  }
 }
 .card {
   display: flex;

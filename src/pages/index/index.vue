@@ -47,13 +47,14 @@
         <template v-for="(item, index) in itemList">
           <view class="card" @click="handleClickNav(item)">
             <!-- 添加长按事件 -->
-            <image
-              class="img"
-              :src="calImgSrcFn(item.imgList)"
-              mode="scaleToFill"
-              :animation="animationShake"
-              @longpress="handleLongPress(index)"
-            />
+            <view :animation="animationShake">
+              <image
+                class="img"
+                :src="calImgSrcFn(item.imgList)"
+                mode="scaleToFill"
+                @longpress="handleLongPress(index)"
+              />
+            </view>
             <view class="details">
               <view class="title">
                 {{ item.title }}
@@ -69,6 +70,9 @@
               </view>
             </view>
           </view>
+        </template>
+        <template v-if="queryParams.pageNum > maxPageNum">
+          <view class="bottom-no-data">-- 已经到底了 --</view>
         </template>
       </template>
       <template v-else> <nut-empty description="暂无数据"></nut-empty></template>
@@ -105,6 +109,7 @@ const { setChoosedTags } = useGoodsStore()
 
 usePullDownRefresh(async () => {
   queryParams.value.pageNum = 1
+  itemList.value = []
   useGetTagList()
 })
 
@@ -133,20 +138,33 @@ const tagsParams = computed(() => {
   return obj
 })
 
+// 记录总数
+const total = ref(0)
+// 最大页数
+const maxPageNum = computed(() => {
+  return Math.ceil(total.value / queryParams.value.pageSize) === 0
+    ? 1
+    : Math.ceil(total.value / queryParams.value.pageSize)
+})
 const useGetItemList = () => {
+  if (queryParams.value.pageNum > maxPageNum.value) return
   selectGoods({
     title: searchValue.value,
     tags: tagsParams.value,
     ...queryParams.value,
   }).then((res) => {
-    // 分类属性统一添加到结果的 tags 属性
-    res.data.forEach((item) => {
-      item.tags = tagList.value.map((sitem) => item[sitem.key])
-    })
-    itemList.value = res.data
+    total.value = res.total
+    if (queryParams.value.pageNum <= maxPageNum.value) {
+      // 分类属性统一添加到结果的 tags 属性
+      res.data.forEach((item) => {
+        item.tags = tagList.value.map((sitem) => item[sitem.key])
+      })
+      itemList.value.push(...res.data)
+      console.log(itemList)
+    }
     stopPullDownRefresh({
       complete: () => {
-        console.log('下拉刷新')
+        console.log('下拉刷新结束')
       },
     })
   })
@@ -158,6 +176,7 @@ const debounceSearch = debounce(useGetItemList, 1000)
 const handleSearchChange = (value) => {
   searchValue.value = value
   queryParams.value.pageNum = 1
+  itemList.value = []
   debounceSearch()
 }
 
@@ -172,23 +191,12 @@ const handleLongPress = (index) => {
     type: 'medium',
   })
   const animation = wx.createAnimation({
-    duration: 10000,
+    duration: 50,
     timingFunction: 'ease',
   })
-  animation
-    .translateX(-100)
-    .step()
-    .translateX(100)
-    .step()
-    .translateX(-100)
-    .step()
-    .translateX(100)
-    .step()
-    .translateX(-100)
-    .step()
-    .translateX(0)
-    .step()
+  animation.translateX(-100).step().translateX(200).step().translateX(0).step()
   animationShake.value = animation.export()
+  console.log(animationShake.value)
 }
 
 /**

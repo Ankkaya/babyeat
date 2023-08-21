@@ -8,10 +8,12 @@ const _ = db.command
 
 // 查询数据库集合云函数入口函数
 exports.main = async (event, context) => {
+  // 先取出集合记录总数
+  const countResult = await db.collection('goods').where(jointParams(event)).count()
   // 返回数据库查询结果
   let res = await db
     .collection('goods')
-    .skip(event.pageNum)
+    .skip((event.pageNum - 1) * event.pageSize)
     .limit(event.pageSize ?? 5)
     .where(jointParams(event))
     .get()
@@ -21,7 +23,11 @@ exports.main = async (event, context) => {
     let imgsRes = await getImgById(i.imgList)
     i.imgList = imgsRes.data
   }
-  return res
+  return {
+    data: res.data,
+    total: countResult.total,
+    pageNum: event.pageNum,
+  }
 }
 
 // 根据图片 id 查询图片地址并返回
