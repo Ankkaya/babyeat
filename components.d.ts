@@ -7,8 +7,12 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    NavBar: typeof import('./src/components/navBar/index.vue')['default']
     NutActionSheet: typeof import('@nutui/nutui-taro')['ActionSheet']
+    NutAvatar: typeof import('@nutui/nutui-taro')['Avatar']
     NutButton: typeof import('@nutui/nutui-taro')['Button']
+    NutCell: typeof import('@nutui/nutui-taro')['Cell']
+    NutCellGroup: typeof import('@nutui/nutui-taro')['CellGroup']
     NutEmpty: typeof import('@nutui/nutui-taro')['Empty']
     NutForm: typeof import('@nutui/nutui-taro')['Form']
     NutFormItem: typeof import('@nutui/nutui-taro')['FormItem']
@@ -22,6 +26,8 @@ declare module '@vue/runtime-core' {
     NutSearchbar: typeof import('@nutui/nutui-taro')['Searchbar']
     NutSwiper: typeof import('@nutui/nutui-taro')['Swiper']
     NutSwiperItem: typeof import('@nutui/nutui-taro')['SwiperItem']
+    NutTabbar: typeof import('@nutui/nutui-taro')['Tabbar']
+    NutTabbarItem: typeof import('@nutui/nutui-taro')['TabbarItem']
     NutUploader: typeof import('@nutui/nutui-taro')['Uploader']
   }
 }

@@ -47,7 +47,7 @@
         <template v-for="(item, index) in itemList">
           <view class="card" @click="handleClickNav(item)">
             <!-- 添加长按事件 -->
-            <view :animation="animationShake">
+            <view class="img-con" :animation="animationShake">
               <image
                 class="img"
                 :src="calImgSrcFn(item.imgList)"
@@ -81,6 +81,7 @@
   <view class="add" @click="clickAddFn">
     <Uploader class="uploader" />
   </view>
+  <nav-bar></nav-bar>
 </template>
 
 <script setup>
@@ -191,12 +192,14 @@ const handleLongPress = (index) => {
     type: 'medium',
   })
   const animation = wx.createAnimation({
-    duration: 50,
+    duration: 4000,
     timingFunction: 'ease',
   })
-  animation.translateX(-100).step().translateX(200).step().translateX(0).step()
+  /**
+   * ??? 暂未实现动画序列
+   */
+  animation.rotate(1).step()
   animationShake.value = animation.export()
-  console.log(animationShake.value)
 }
 
 /**

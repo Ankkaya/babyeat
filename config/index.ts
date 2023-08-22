@@ -69,6 +69,10 @@ const config = {
         },
       },
     },
+    enableExtract: true,
+    miniCssExtractPluginOption: {
+      ignoreOrder: true,
+    },
   },
   h5: {
     webpackChain(chain) {

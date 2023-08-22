@@ -1,0 +1,43 @@
+page {
+  background-color: #f7f8fa;
+}
+.my {
+  .base {
+    position: relative;
+    .bg {
+      height: 40vh;
+      width: 100%;
+      filter: blur(80px);
+    }
+    .info {
+      position: absolute;
+      width: 100%;
+      top: 30%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      .avatar {
+        border-radius: 50%;
+      }
+      // 1 分钟转一圈动画
+      @keyframes rotate {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      // 点击暂停动画
+      .avatar:active {
+        animation: rotate 1s linear infinite;
+      }
+      .nickname {
+        font-size: 40px;
+        color: #fff;
+        margin-top: 10px;
+      }
+    }
+  }
+}
