@@ -1,5 +1,6 @@
 import Taro from '@tarojs/taro'
 function callFunction(data) {
+  console.log('callFunction data', data)
   return new Promise((resolve, reject) => {
     Taro.showLoading({ title: '加载中...' })
     Taro.cloud.callFunction({

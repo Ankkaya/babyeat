@@ -24,7 +24,7 @@
 import './index.scss'
 import { ref, onMounted } from 'vue'
 import Taro from '@tarojs/taro'
-
+import { getOpenId, selectUser, insertUser, updateUser } from '@/api/user'
 const menus = ref([
   {
     label: '点赞👍',
@@ -38,7 +38,19 @@ const clickAuthFn = () => {
   Taro.getUserProfile({
     desc: '展示用户基础信息',
     success: (res) => {
-      console.log(res)
+      getOpenId().then(async (sres) => {
+        console.log(sres)
+        console.log(res)
+        let a = await selectUser({ openid: sres.openid })
+        console.log(a)
+        if (a.data.length < 1) {
+          // 添加用户
+          insertUser({ openid: sres.openid, ...res.userInfo })
+        } else {
+          // 更新用户
+          updateUser({ openid: sres.openid, ...res.userInfo })
+        }
+      })
     },
     fail: (err) => {
       console.log(err)

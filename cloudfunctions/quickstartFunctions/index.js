@@ -9,6 +9,10 @@ const uploadImg = require('./uploadImg/index')
 const selectRecord = require('./selectRecord/index')
 const selectDetail = require('./selectDetail/index')
 const insertGoods = require('./insertGoods/index')
+// 用户
+const selectUser = require('./users/selectUser/index')
+const insertUser = require('./users/insertUser/index')
+const updateUser = require('./users/updateUser/index')
 
 // 云函数入口函数
 exports.main = async (event, context) => {
@@ -33,5 +37,11 @@ exports.main = async (event, context) => {
       return await insertGoods.main(event, context)
     case 'selectDetail':
       return await selectDetail.main(event, context)
+    case 'selectUser':
+      return await selectUser.main(event, context)
+    case 'insertUser':
+      return await insertUser.main(event, context)
+    case 'updateUser':
+      return await updateUser.main(event, context)
   }
 }
