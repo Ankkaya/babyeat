@@ -73,10 +73,13 @@ import './index.scss'
 import { IconFont } from '@nutui/icons-vue-taro'
 import { Tips, Shop } from '@nutui/icons-vue-taro'
 import { ref } from 'vue'
-import Taro from '@tarojs/taro'
-import { useGoodsStore } from '@/store'
+import Taro, { setStorageSync } from '@tarojs/taro'
+import { useGoodsStore, useBaseStore } from '@/store'
 import { onMounted } from 'vue'
 import { selectDetail } from '@/api/goods'
+import { updateUser } from '@/api/user'
+import { getStorageSync } from '@/utils/storage'
+import { storeToRefs } from 'pinia'
 
 // 获取类别列表
 const paramsOther = useGoodsStore().choosedTags
@@ -128,20 +131,83 @@ const bottomControlBtns = ref([
     icon: 'addfollow',
     iconActive: 'heart-fill',
     label: '点个赞吧',
-    value: true,
+    value: false,
   },
   {
     icon: 'star-n',
     iconActive: 'star-fill-n',
     label: '收藏啦',
-    value: true,
+    value: false,
   },
 ])
+
+// 获取状态
+const useGetStatus = () => {
+  let userInfo = getStorageSync('userInfo')
+  if (userInfo) {
+    bottomControlBtns.value[1].value = userInfo.like.includes(snacksInfo.value._id)
+    bottomControlBtns.value[2].value = userInfo.collect.includes(snacksInfo.value._id)
+  }
+}
+
 const bcbClickFn = (index, item) => {
-  item.value = !item.value
   if (index === 0) {
     clickNavFn()
+  } else {
+    if (!useJudgeBottomClick()) return
+    let obj = {
+      callType: '',
+      value: !item.value,
+      goodsId: snacksInfo.value._id,
+      id: getStorageSync('userInfo')._id,
+      openid: getStorageSync('userInfo').openid,
+    }
+    // 点赞或取消赞
+    if (index === 1) {
+      obj.callType = 'like'
+      updateUser(obj).then((res) => {
+        useBottomControl(item, res)
+      })
+    }
+    // 收藏或取消收藏
+    if (index === 2) {
+      obj.callType = 'collect'
+      updateUser(obj).then((res) => {
+        useBottomControl(item, res)
+      })
+    }
   }
+}
+
+const { lastChooseTabIndex } = storeToRefs(useBaseStore())
+
+// 判断底部点击状态
+const useJudgeBottomClick = () => {
+  // 判断用户信息是否存在
+  if (!getStorageSync('userInfo')) {
+    Taro.showToast({
+      title: '请先登录',
+      icon: 'none',
+      duration: 2000,
+    })
+    lastChooseTabIndex.value = 1
+    setTimeout(() => {
+      Taro.navigateTo({
+        url: '/pages/my/index',
+      })
+    }, 800)
+  } else {
+    return true
+  }
+}
+const useBottomControl = (item, res) => {
+  item.value = !item.value
+  Taro.showToast({
+    title: item.value ? '操作成功' : '取消成功',
+    icon: 'success',
+    duration: 2000,
+  })
+  setStorageSync('userInfo', res.data)
 }
 
 // 地图导航
@@ -157,6 +223,8 @@ const clickNavFn = () => {
 }
 
 onMounted(() => {
+  console.log('goods/detail mounted')
   useGetItemDetail(useGoodsStore().goodsId)
+  useGetStatus()
 })
 </script>

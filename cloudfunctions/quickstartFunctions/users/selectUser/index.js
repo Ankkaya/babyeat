@@ -17,5 +17,15 @@ exports.main = async (event, context) => {
       openid: event.openid,
     })
     .get()
-  return res
+  if (res.data.length === 0) {
+    return {
+      success: true,
+      data: null,
+    }
+  } else {
+    return {
+      success: true,
+      data: res.data[0],
+    }
+  }
 }
