@@ -77,7 +77,7 @@ import Taro, { setStorageSync } from '@tarojs/taro'
 import { useGoodsStore, useBaseStore } from '@/store'
 import { onMounted } from 'vue'
 import { selectDetail } from '@/api/goods'
-import { updateUser } from '@/api/user'
+import { updateUser, selectUser } from '@/api/user'
 import { getStorageSync } from '@/utils/storage'
 import { storeToRefs } from 'pinia'
 
@@ -89,8 +89,8 @@ const paramsOther = useGoodsStore().choosedTags
  * @param {Function} useGetItemDetail 获取零食详情
  */
 const snacksInfo = ref({})
-const useGetItemDetail = (id) => {
-  selectDetail({ id: id }).then((res) => {
+const useGetItemDetail = async (id) => {
+  await selectDetail({ id: id }).then((res) => {
     snacksInfo.value = res.data
   })
 }
@@ -143,11 +143,11 @@ const bottomControlBtns = ref([
 
 // 获取状态
 const useGetStatus = () => {
-  let userInfo = getStorageSync('userInfo')
-  if (userInfo) {
-    bottomControlBtns.value[1].value = userInfo.like.includes(snacksInfo.value._id)
-    bottomControlBtns.value[2].value = userInfo.collect.includes(snacksInfo.value._id)
-  }
+  selectUser({ openid: userInfo.openid }).then((res) => {
+    bottomControlBtns.value[1].value = res.data.like.includes(snacksInfo.value._id)
+    bottomControlBtns.value[2].value = res.data.collect.includes(snacksInfo.value._id)
+    console.log(bottomControlBtns.value)
+  })
 }
 
 const bcbClickFn = (index, item) => {
@@ -222,9 +222,13 @@ const clickNavFn = () => {
   }
 }
 
-onMounted(() => {
+const userInfo = getStorageSync('userInfo')
+onMounted(async () => {
   console.log('goods/detail mounted')
-  useGetItemDetail(useGoodsStore().goodsId)
-  useGetStatus()
+  await useGetItemDetail(useGoodsStore().goodsId)
+  // 如果用户信息存在，获取状态
+  if (userInfo) {
+    useGetStatus()
+  }
 })
 </script>

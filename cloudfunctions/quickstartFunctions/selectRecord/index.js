@@ -59,5 +59,8 @@ function jointParams(event) {
       }
     })
   }
+  if (event.ids) {
+    otherCon._id = _.in(event.ids)
+  }
   return Object.assign(titleCon, otherCon)
 }

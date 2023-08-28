@@ -2,6 +2,9 @@
   "projectname": "babyeat",
   "setting": {
     "compileHotReLoad": true,
-    "urlCheck": false
-  }
+    "urlCheck": false,
+    "skylineRenderEnable": true,
+    "bigPackageSizeSupport": true
+  },
+  "libVersion": "3.0.1"
 }
