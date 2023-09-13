@@ -15,12 +15,12 @@
       </view>
     </view>
     <!-- 发布，点赞，收藏记录 -->
-    <scroll-view type="custom" style="height: 100%" :scroll-y="true" :push-pinned-header="true">
+    <scroll-view type="custom" style="height: 100%" :scroll-y="true" :push-pinned-header="true" class="content">
       <sticky-section>
-        <nut-sticky>
-          <nut-button type="primary">吸顶按钮</nut-button>
-          <nut-button type="primary">吸顶按钮</nut-button>
-          <nut-button type="primary">吸顶按钮</nut-button>
+        <nut-sticky class="sticky-menus">
+          <template v-for="item in menus">
+            <view>{{ item.label }}</view>
+          </template>
         </nut-sticky>
         <list-view>
           <view
@@ -58,15 +58,15 @@ import { getOpenId, selectUser, insertUser, updateUser } from '@/api/user'
 import { selectGoods } from '@/api/goods'
 const menus = ref([
   {
-    label: '点赞👍',
+    label: 'Likes',
     key: 'like',
   },
   {
-    label: '收藏💗',
+    label: 'Collects',
     key: 'collect',
   },
   {
-    label: '我的提交📝',
+    label: 'Posts',
     key: 'submit',
   },
 ])
